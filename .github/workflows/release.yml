@@ -100,7 +100,7 @@ jobs:
 
       - name: Veröffentlichen
         # ReadyToRun uebersetzt beim Veroeffentlichen vor; das zahlt sich bei
-        # einem post-commit-Haken bei jedem einzelnen Commit aus. Es laeuft
+        # einem post-commit-Hook bei jedem einzelnen Commit aus. Es laeuft
         # auch ueber Kreuz - nachgemessen: osx-x64 mit ReadyToRun von einem
         # Windows-Rechner aus uebersetzt anstandslos. Gebaut wird trotzdem je
         # Plattform auf ihrer eigenen Maschine, weil dort auch die Tests
@@ -161,10 +161,15 @@ jobs:
           set -euo pipefail
           version="${{ needs.pruefen.outputs.version }}"
           # Vom eigenen Abschnitt bis zur naechsten Ueberschrift, ohne beide.
-          awk -v v="$version" '
-            $0 ~ "^## \\[" v "\\]" { drin = 1; next }
-            drin && /^## \[/       { exit }
-            drin                   { print }
+          #
+          # BEWUSST OHNE REGULAERE AUSDRUECKE: "\\[" wird von awk als plain "["
+          # gelesen und eroeffnet damit eine Zeichenklasse - der Abschnitt wurde
+          # nie gefunden, und die Notiz waere leer geblieben. index() vergleicht
+          # buchstaeblich und kennt dieses Problem nicht.
+          awk -v kopf="## [$version]" '
+            index($0, kopf) == 1     { drin = 1; next }
+            drin && index($0, "## [") == 1 { exit }
+            drin                     { print }
           ' CHANGELOG.md | sed '/^---$/d' > notiz.md
 
           if [ ! -s notiz.md ]; then

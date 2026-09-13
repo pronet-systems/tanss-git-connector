@@ -11,6 +11,10 @@ Die Fassungsnummer selbst steht an genau einer Stelle: im Element `Version` in
 
 ## [Unveröffentlicht]
 
+---
+
+## [0.1.0] — 2026-09-13
+
 ### Hinzugefügt — eine Marke erzeugt jetzt wirklich eine Veröffentlichung
 
 `git push origin v0.2.0` baut die fünf Plattformen, packt je ein `.tar.gz` mit SHA256 und legt
@@ -25,9 +29,9 @@ Dateien eine andere Nummer melden als ihr Name — und das fällt erst dem Benut
 ### Behoben — der CI-Lauf wäre beim ersten Push rot gewesen
 
 - **`tanss-git queue` endet mit 1, solange etwas wartet** — ein Befund, kein Fehler. Unter
-  `set -euo pipefail` hat genau das den Hakentest abgebrochen, und zwar zwingend: Der Testlauf
+  `set -euo pipefail` hat genau das den Hook-Test abgebrochen, und zwar zwingend: Der Testlauf
   hat kein Token, also wartet der Commit. Der Rückgabewert wird jetzt bewusst ausgewertet.
-- **Der Hakentest konnte falsch grün werden.** Er suchte das Wort „wartend“ — das aber immer in
+- **Der Hook-Test konnte falsch grün werden.** Er suchte das Wort „wartend“ — das aber immer in
   der Kopfzeile steht, auch bei „wartend 0“. Geprüft wird jetzt die Warteschlangendatei selbst,
   samt Gegenprobe, dass nichts gebucht wurde.
 - **Der Veröffentlichungslauf hätte nie eine Veröffentlichung erzeugt:** Er verlangte den Läufer
@@ -70,7 +74,7 @@ geführt, dass die Wiederholung ohne Existenzprüfung hinausgeht — und TANSS d
 - **Ein Abbruch mitten im Senden hinterlässt einen Vermerk.** Strg+C sagt nichts darüber, ob die
   Anfrage angekommen ist; bisher blieb der Eintrag als scheinbar geklärter Erstversuch stehen.
   Der Abbruch wird weiterhin durchgereicht.
-- Die Zeitgrenze des Hakens zählt einen Versuch nicht mehr doppelt.
+- Die Zeitgrenze des Hooks zählt einen Versuch nicht mehr doppelt.
 
 Acht neue Tests decken die Fälle ab (178 insgesamt).
 
@@ -91,16 +95,15 @@ Datensatz über den Commit-Hash wieder, und `userId`/`userName` dürfen leer hin
 
 ---
 
-## [0.1.0] — 2026-09-13
 
 Erste Fassung. Sie bucht Git-Commits als Fernwartungen unmittelbar in eine TANSS-Instanz,
 ohne einen Dienst dazwischen.
 
 ### Hinzugefügt
 
-- **Der `post-commit`-Haken.** `tanss-git enable` schreibt ihn in das aktuelle Repository,
+- **Der `post-commit`-Hook.** `tanss-git enable` schreibt ihn in das aktuelle Repository,
   `tanss-git enable --global` legt eine Git-Vorlage an, die Git bei jedem `git init` und
-  `git clone` mitkopiert. Ein fremder Haken bleibt unangetastet; `--force` ersetzt ihn und
+  `git clone` mitkopiert. Ein fremder Hook bleibt unangetastet; `--force` ersetzt ihn und
   bewahrt den bisherigen Stand daneben auf.
 - **Die Buchung.** Aus einem Commit entsteht eine Fernwartung auf eine externe Anbindung
   (Kennung ≥ 1000) mit Betreff, Rumpf, Kurzhash, Repository und Zweig im Kommentar. Jedes dieser
@@ -135,7 +138,7 @@ ohne einen Dienst dazwischen.
 
 ### Zugesichert
 
-- **Der Haken endet immer mit 0.** Wenn er läuft, ist der Commit bereits geschrieben.
+- **Der Hook endet immer mit 0.** Wenn er läuft, ist der Commit bereits geschrieben.
 - **Es verlässt kein Quelltext den Rechner** — keine Dateinamen, keine Änderungen.
 - **Es gibt genau eine Gegenstelle:** die TANSS-Instanz des Kunden. Keine Telemetrie, keine
   Absturzberichte, keine Aktualisierungsabfrage bei Dritten.

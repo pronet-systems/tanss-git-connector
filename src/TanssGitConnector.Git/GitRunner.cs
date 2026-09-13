@@ -57,7 +57,7 @@ public sealed class GitRunner : IGitRunner
     /// <remarks>
     /// Grosszügig für einen Aufruf, der Millisekunden dauert, und trotzdem nötig: Liegt das
     /// Repository auf einem Netzlaufwerk, das gerade nicht antwortet, hinge sonst der
-    /// <c>post-commit</c>-Haken und mit ihm der Techniker.
+    /// <c>post-commit</c>-Hook und mit ihm der Techniker.
     /// </remarks>
     public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(20);
 
@@ -99,7 +99,7 @@ public sealed class GitRunner : IGitRunner
             start.ArgumentList.Add(argument);
         }
 
-        // Kein Pager, keine Nachfrage, feste Sprache. Ein Haken hat kein Terminal, an dem
+        // Kein Pager, keine Nachfrage, feste Sprache. Ein Hook hat kein Terminal, an dem
         // jemand "q" druecken oder ein Kennwort eintippen koennte - ohne diese drei Zeilen
         // bliebe er im Zweifel stehen, bis die Zeitgrenze greift.
         start.Environment["GIT_PAGER"] = "cat";

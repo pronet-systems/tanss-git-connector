@@ -16,10 +16,10 @@ public sealed record EnqueueResult(bool Added, QueuedCommit? Existing);
 /// <remarks>
 /// <para><b>Der Commit wird eingereiht, bevor irgendetwas ins Netz geht.</b> Das ist die ganze
 /// Verlustsicherheit dieses Werkzeugs: Ein Netzausfall, ein zugeklappter Rechner oder ein
-/// abgebrochener Haken kostet dann keine Arbeitszeit, sondern verschiebt sie nur.</para>
+/// abgebrochener Hook kostet dann keine Arbeitszeit, sondern verschiebt sie nur.</para>
 ///
 /// <para><b>Der Commit-Hash ist der Schlüssel.</b> Ein zweites Einreihen desselben Commits —
-/// nach einem <c>tanss-git book HEAD</c> von Hand, nach einem zweiten Haken, nach einem
+/// nach einem <c>tanss-git book HEAD</c> von Hand, nach einem zweiten Hook, nach einem
 /// wiederholten Lauf — wird abgelehnt, nicht angehängt. Der Eintrag bleibt auch nach dem Senden
 /// stehen, bis die Frist ihn fortnimmt; ohne ihn wäre die Sperre nach dem ersten erfolgreichen
 /// Senden wieder offen.</para>
@@ -111,7 +111,7 @@ public sealed class CommitOutbox
                 State = QueueState.Pending,
                 CreatedAt = now,
 
-                // Faellig ab sofort: Der Haken versucht unmittelbar nach dem Einreihen zu
+                // Faellig ab sofort: Der Hook versucht unmittelbar nach dem Einreihen zu
                 // senden, und ein Rueckstau von Anfang an hiesse, dass der erste Versuch
                 // immer ausfaellt.
                 NextAttemptAt = now,

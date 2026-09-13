@@ -5,7 +5,7 @@ namespace TanssGitConnector.Git;
 
 /// <summary>Woher die Ticketnummer stammt.</summary>
 /// <remarks>
-/// Die Herkunft steht im Protokoll und in der Ausgabe des Hakens. Wer am Monatsende eine
+/// Die Herkunft steht im Protokoll und in der Ausgabe des Hooks. Wer am Monatsende eine
 /// Fernwartung am falschen Ticket findet, soll nicht raten müssen, welche der drei Quellen sie
 /// dorthin gebracht hat.
 /// </remarks>

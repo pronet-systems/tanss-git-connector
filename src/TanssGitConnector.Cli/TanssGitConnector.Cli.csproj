@@ -6,7 +6,7 @@
     <AssemblyName>tanss-git</AssemblyName>
     <!-- Deutsche Benutzertexte mit Umlauten: die invariante Globalisierung waere hier falsch. -->
     <InvariantGlobalization>false</InvariantGlobalization>
-    <!-- Der haeufigste Aufrufer ist ein post-commit-Haken. Was den Start beschleunigt, zahlt
+    <!-- Der haeufigste Aufrufer ist ein post-commit-Hook. Was den Start beschleunigt, zahlt
          sich bei jedem einzelnen Commit aus.
          ReadyToRun steht bewusst NICHT hier, sondern im Veroeffentlichungslauf und in der
          Anleitung: Es verlaengert jeden gewoehnlichen "dotnet build" und jeden Testlauf, ohne

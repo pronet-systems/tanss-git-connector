@@ -188,8 +188,8 @@ internal static class SetupCommand
         output.WriteLine("Geschrieben: " + store.Path);
         output.WriteLine();
         output.WriteLine("Weiter geht es mit:");
-        output.WriteLine("  tanss-git enable --global    Haken für künftige Repositorys");
-        output.WriteLine("  tanss-git enable             Haken in diesem Repository");
+        output.WriteLine("  tanss-git enable --global    Hook für künftige Repositorys");
+        output.WriteLine("  tanss-git enable             Hook in diesem Repository");
         output.WriteLine("  tanss-git doctor             Einrichtung prüfen");
 
         return ExitCode.Healthy;

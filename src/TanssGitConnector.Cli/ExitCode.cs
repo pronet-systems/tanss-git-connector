@@ -8,7 +8,7 @@ namespace TanssGitConnector.Cli;
 /// auf und entscheidet allein anhand der Zahl, ob sie jemanden weckt. Wer hier etwas umwidmet,
 /// ändert stillschweigend das Verhalten jeder Überwachung, die schon läuft.</para>
 ///
-/// <para><b>Der Haken ist davon ausgenommen.</b> <c>tanss-git hook</c> endet <b>immer</b> mit 0.
+/// <para><b>Der Hook ist davon ausgenommen.</b> <c>tanss-git hook</c> endet <b>immer</b> mit 0.
 /// Wenn er läuft, ist der Commit bereits geschrieben; ein Fehlschlag beim Buchen ist ein Grund
 /// für eine Meldung und niemals einer, den Commit als misslungen erscheinen zu lassen.</para>
 ///

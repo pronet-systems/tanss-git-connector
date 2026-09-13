@@ -31,7 +31,7 @@ public enum QueueState
 /// <summary>Ein Eintrag der Warteschlange.</summary>
 /// <remarks>
 /// Die Nutzlast ist ein fertiges <see cref="RemoteSupportWrite"/>. Sie entsteht genau einmal,
-/// im <c>post-commit</c>-Haken, und wird danach nicht mehr angefasst. Ein Eintrag, dessen
+/// im <c>post-commit</c>-Hook, und wird danach nicht mehr angefasst. Ein Eintrag, dessen
 /// Nutzlast beim Senden nachgerechnet würde, hinge von Einstellungen ab, die sich seither
 /// geändert haben können — und die gebuchte Fernwartung wäre nicht mehr die, die der Techniker
 /// beim Commit gesehen hat.
@@ -99,7 +99,7 @@ public sealed record QueuedCommit
 /// <summary>Der Inhalt der Warteschlangendatei.</summary>
 /// <remarks>
 /// Eine Datei statt einer Datenbank, und das mit Absicht: Der häufigste Aufrufer ist ein
-/// <c>post-commit</c>-Haken, der in Millisekunden anlaufen muss. Eine eingebettete Datenbank
+/// <c>post-commit</c>-Hook, der in Millisekunden anlaufen muss. Eine eingebettete Datenbank
 /// kostet beim ersten Zugriff ein Vielfaches davon, und die Menge — eine Handvoll Zeilen,
 /// selten mehr — rechtfertigt sie nicht.
 /// </remarks>

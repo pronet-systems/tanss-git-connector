@@ -85,7 +85,7 @@
   },
 
   "hook": {
-    // Aus ergibt einen Haken, der nur einreiht; "tanss-git queue --flush" bringt die Commits
+    // Aus ergibt einen Hook, der nur einreiht; "tanss-git queue --flush" bringt die Commits
     // dann spaeter nach TANSS, etwa aus einem Zeitplan heraus.
     "send_immediately": true,
 

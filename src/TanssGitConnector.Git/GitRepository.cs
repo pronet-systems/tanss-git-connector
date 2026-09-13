@@ -8,7 +8,7 @@ namespace TanssGitConnector.Git;
 /// <remarks>
 /// <para><b>Nur lesende Aufrufe.</b> Dieses Werkzeug verändert kein Repository — es legt keinen
 /// Commit an, es ändert keine Marke, es schreibt in keine Git-Konfiguration außer beim
-/// ausdrücklichen Einrichten des Hakens. Wer hier einen schreibenden Aufruf ergänzt, ändert
+/// ausdrücklichen Einrichten des Hooks. Wer hier einen schreibenden Aufruf ergänzt, ändert
 /// diese Zusage.</para>
 /// <para><b>Die Zerlegung hängt an einem Trennzeichen, das in keinem Text vorkommt:</b>
 /// <c>%x1f</c>, die Unit Separator. Ein Zeilenumbruch als Trenner wäre falsch — Commit-Meldungen
@@ -142,13 +142,13 @@ public sealed class GitRepository
     }
 
     /// <summary>
-    /// Das Verzeichnis, in dem die Haken dieses Repositorys liegen.
+    /// Das Verzeichnis, in dem die Hooks dieses Repositorys liegen.
     /// </summary>
     /// <remarks>
     /// Über <c>git rev-parse --git-path hooks</c> und nicht über <c>.git/hooks</c>
     /// zusammengesetzt. Der Unterschied ist kein Feinschliff: Bei einem Arbeitsbaum
     /// (<c>git worktree</c>) ist <c>.git</c> eine Datei, und wer <c>core.hooksPath</c> gesetzt
-    /// hat, liegt ganz woanders. Ein Haken im falschen Verzeichnis läuft nie und sagt auch nicht,
+    /// hat, liegt ganz woanders. Ein Hook im falschen Verzeichnis läuft nie und sagt auch nicht,
     /// warum.
     /// </remarks>
     public async Task<string> HooksDirectoryAsync(string directory, CancellationToken ct = default)

@@ -11,19 +11,19 @@ public enum CliCommand
     /// <summary>Einrichtung: Anmeldung, Token, Mitarbeiter, Anbindung.</summary>
     Setup,
 
-    /// <summary>Erreichbarkeit, Token, Rechte, Haken und Warteschlange prüfen.</summary>
+    /// <summary>Erreichbarkeit, Token, Rechte, Hook und Warteschlange prüfen.</summary>
     Doctor,
 
-    /// <summary>Den Haken einrichten.</summary>
+    /// <summary>Den Hook einrichten.</summary>
     Enable,
 
-    /// <summary>Den Haken entfernen.</summary>
+    /// <summary>Den Hook entfernen.</summary>
     Disable,
 
     /// <summary>Zeigen, was eingerichtet ist.</summary>
     Status,
 
-    /// <summary>Der Aufruf aus dem <c>post-commit</c>-Haken.</summary>
+    /// <summary>Der Aufruf aus dem <c>post-commit</c>-Hook.</summary>
     Hook,
 
     /// <summary>Einen bestimmten Commit nachträglich buchen.</summary>
@@ -96,7 +96,7 @@ public sealed record CliArgs
     /// <summary><c>enable --global</c>: als Vorlage für künftige Repositorys.</summary>
     public bool Global { get; init; }
 
-    /// <summary><c>enable --force</c>: einen fremden Haken ersetzen, nach Sicherung.</summary>
+    /// <summary><c>enable --force</c>: einen fremden Hook ersetzen, nach Sicherung.</summary>
     public bool Force { get; init; }
 
     /// <summary>Nichts ausgeben, wenn alles gutgegangen ist.</summary>

@@ -49,7 +49,7 @@ internal static class StatusCommand
         output.WriteLine("  Ohne Ticket     " + (composition.Config.Commits.OnlyWithTicket
             ? "wird nicht gebucht" : "wird gebucht"));
         output.WriteLine();
-        output.WriteLine("Haken");
+        output.WriteLine("Hook");
 
         foreach (string line in await DescribeHooksAsync(composition, directory, ct).ConfigureAwait(false))
         {
@@ -123,9 +123,9 @@ internal static class StatusCommand
             lines.Add("Dieses Repository  " + here.State switch
             {
                 HookState.Ours => "eingerichtet — " + here.Path,
-                HookState.Foreign => "fremder Haken, unangetastet — " + here.Path,
+                HookState.Foreign => "fremder Hook, unangetastet — " + here.Path,
                 HookState.Unreadable => "unlesbar — " + here.Path,
-                _ => "kein Haken (tanss-git enable)",
+                _ => "kein Hook (tanss-git enable)",
             });
         }
         catch (NotARepositoryException)

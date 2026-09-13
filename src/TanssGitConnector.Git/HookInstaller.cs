@@ -3,16 +3,16 @@ using System.Text;
 
 namespace TanssGitConnector.Git;
 
-/// <summary>Was an der Stelle des Hakens vorgefunden wurde.</summary>
+/// <summary>Was an der Stelle des Hooks vorgefunden wurde.</summary>
 public enum HookState
 {
-    /// <summary>Es liegt kein <c>post-commit</c>-Haken.</summary>
+    /// <summary>Es liegt kein <c>post-commit</c>-Hook.</summary>
     Missing,
 
-    /// <summary>Unser Haken liegt dort.</summary>
+    /// <summary>Unser Hook liegt dort.</summary>
     Ours,
 
-    /// <summary>Dort liegt ein fremder Haken. Er wird nicht angefasst.</summary>
+    /// <summary>Dort liegt ein fremder Hook. Er wird nicht angefasst.</summary>
     Foreign,
 
     /// <summary>Die Datei liegt dort, liess sich aber nicht lesen.</summary>
@@ -23,41 +23,41 @@ public enum HookState
     Unreadable,
 }
 
-/// <summary>Der Befund zu einem Hakenverzeichnis.</summary>
+/// <summary>Der Befund zu einem Hook-Verzeichnis.</summary>
 /// <param name="State">Was vorgefunden wurde.</param>
-/// <param name="Path">Der vollständige Pfad der Hakendatei.</param>
+/// <param name="Path">Der vollständige Pfad der Hook-Datei.</param>
 /// <param name="Detail">Ein erklärender Satz, oder <see langword="null"/>.</param>
 public sealed record HookStatus(HookState State, string Path, string? Detail = null)
 {
-    /// <summary>Ist der Haken eingerichtet?</summary>
+    /// <summary>Ist der Hook eingerichtet?</summary>
     public bool IsInstalled => State == HookState.Ours;
 }
 
-/// <summary>Das Einrichten des Hakens ist nicht möglich, ohne etwas Fremdes zu zerstören.</summary>
+/// <summary>Das Einrichten des Hooks ist nicht möglich, ohne etwas Fremdes zu zerstören.</summary>
 public sealed class HookException : GitException
 {
     public HookException(string message, Exception? inner = null) : base(message, inner: inner) { }
 }
 
 /// <summary>
-/// Richtet den <c>post-commit</c>-Haken ein und wieder ab — im einzelnen Repository und als
+/// Richtet den <c>post-commit</c>-Hook ein und wieder ab — im einzelnen Repository und als
 /// Vorlage für künftige.
 /// </summary>
 /// <remarks>
-/// <para><b>Fremde Haken bleiben unangetastet.</b> Eine vorgefundene Datei ohne unsere
+/// <para><b>Fremde Hook bleiben unangetastet.</b> Eine vorgefundene Datei ohne unsere
 /// Erkennungsmarke wird weder überschrieben noch gelöscht, sondern gemeldet. Ein
-/// <c>post-commit</c>-Haken kann ein Prüflauf, eine Signatur oder eine Benachrichtigung sein.
+/// <c>post-commit</c>-Hook kann ein Prüflauf, eine Signatur oder eine Benachrichtigung sein.
 /// Erst <c>--force</c> überschreibt, und auch dann wird der bisherige Stand daneben
 /// aufbewahrt.</para>
 ///
 /// <para><b>Die Vorlage wirkt nur auf neue Repositorys.</b> <c>init.templatedir</c> greift bei
-/// <c>git init</c> und <c>git clone</c>. Bestehende Repositorys bekommen den Haken über
+/// <c>git init</c> und <c>git clone</c>. Bestehende Repositorys bekommen den Hook über
 /// <c>tanss-git enable</c> im jeweiligen Verzeichnis — oder über ein erneutes <c>git init</c>,
 /// das an einem vorhandenen Repository nichts ändert, aber die Vorlage nachträgt.</para>
 /// </remarks>
 public sealed class HookInstaller
 {
-    /// <summary>Der Unterordner der Vorlage, in dem Git seine Haken sucht.</summary>
+    /// <summary>Der Unterordner der Vorlage, in dem Git seine Hooks sucht.</summary>
     public const string TemplateHooksFolder = "hooks";
 
     /// <summary>Der Git-Einstellungsname der Vorlage.</summary>
@@ -77,7 +77,7 @@ public sealed class HookInstaller
 
     // --- Einzelnes Repository ------------------------------------------------------------
 
-    /// <summary>Sieht nach, was im Hakenverzeichnis dieses Repositorys liegt.</summary>
+    /// <summary>Sieht nach, was im Hook-Verzeichnis dieses Repositorys liegt.</summary>
     public async Task<HookStatus> InspectRepositoryAsync(string directory,
                                                          CancellationToken ct = default)
     {
@@ -85,10 +85,10 @@ public sealed class HookInstaller
         return Inspect(hooks);
     }
 
-    /// <summary>Richtet den Haken in diesem Repository ein.</summary>
+    /// <summary>Richtet den Hook in diesem Repository ein.</summary>
     /// <param name="directory">Ein Verzeichnis innerhalb des Repositorys.</param>
     /// <param name="executablePath">Der vollständige Pfad zu <c>tanss-git</c>.</param>
-    /// <param name="force">Darf ein fremder Haken ersetzt werden? Der bisherige wird gesichert.</param>
+    /// <param name="force">Darf ein fremder Hook ersetzt werden? Der bisherige wird gesichert.</param>
     /// <param name="ct">Abbruchmarke.</param>
     public async Task<HookStatus> EnableRepositoryAsync(string directory, string executablePath,
                                                         bool force = false,
@@ -98,7 +98,7 @@ public sealed class HookInstaller
         return Install(hooks, executablePath, force);
     }
 
-    /// <summary>Entfernt den Haken aus diesem Repository — sofern es unserer ist.</summary>
+    /// <summary>Entfernt den Hook aus diesem Repository — sofern es unserer ist.</summary>
     public async Task<HookStatus> DisableRepositoryAsync(string directory,
                                                          CancellationToken ct = default)
     {
@@ -152,7 +152,7 @@ public sealed class HookInstaller
         {
             throw new HookException(
                 $"„{TemplateSetting}“ liess sich nicht setzen: {result.StandardError}. Ohne diese "
-                + "Einstellung bekommen neu angelegte Repositorys den Haken nicht; bestehende "
+                + "Einstellung bekommen neu angelegte Repositorys den Hook nicht; bestehende "
                 + "lassen sich weiterhin einzeln einrichten.");
         }
     }
@@ -163,7 +163,7 @@ public sealed class HookInstaller
     /// <remarks>
     /// Zeigt die Einstellung woandershin, bleibt sie stehen. Wer eine eigene Vorlage pflegt,
     /// verliert sie nicht dadurch, dass er dieses Werkzeug abschaltet; entfernt wird dann nur
-    /// unser Haken aus seiner Vorlage.
+    /// unser Hook aus seiner Vorlage.
     /// </remarks>
     /// <param name="ownTemplateDirectory">Der Pfad unserer Vorlage.</param>
     /// <param name="ct">Abbruchmarke.</param>
@@ -219,7 +219,7 @@ public sealed class HookInstaller
 
     // --- Die Dateiarbeit -----------------------------------------------------------------
 
-    /// <summary>Sieht nach, was in einem Hakenverzeichnis liegt.</summary>
+    /// <summary>Sieht nach, was in einem Hook-Verzeichnis liegt.</summary>
     public static HookStatus Inspect(string hooksDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(hooksDirectory);
@@ -238,7 +238,7 @@ public sealed class HookInstaller
             return HookScript.IsOurs(content)
                 ? new HookStatus(HookState.Ours, path)
                 : new HookStatus(HookState.Foreign, path,
-                    "Dort liegt bereits ein anderer post-commit-Haken. Er wird nicht angefasst.");
+                    "Dort liegt bereits ein anderer post-commit-Hook. Er wird nicht angefasst.");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -247,13 +247,13 @@ public sealed class HookInstaller
     }
 
     /// <summary>
-    /// Schreibt den Haken in ein Hakenverzeichnis.
+    /// Schreibt den Hook in ein Hook-Verzeichnis.
     /// </summary>
     /// <param name="hooksDirectory">Das Verzeichnis; wird angelegt, wenn es fehlt.</param>
     /// <param name="executablePath">Der vollständige Pfad zu <c>tanss-git</c>.</param>
-    /// <param name="force">Darf ein fremder Haken ersetzt werden?</param>
+    /// <param name="force">Darf ein fremder Hook ersetzt werden?</param>
     /// <exception cref="HookException">
-    /// Dort liegt ein fremder oder unlesbarer Haken und <paramref name="force"/> ist nicht gesetzt.
+    /// Dort liegt ein fremder oder unlesbarer Hook und <paramref name="force"/> ist nicht gesetzt.
     /// </exception>
     public static HookStatus Install(string hooksDirectory, string executablePath, bool force = false)
     {
@@ -265,11 +265,11 @@ public sealed class HookInstaller
         if (found.State is HookState.Foreign or HookState.Unreadable && !force)
         {
             throw new HookException(
-                $"In {found.Path} liegt bereits ein post-commit-Haken, der nicht von diesem "
+                $"In {found.Path} liegt bereits ein post-commit-Hook, der nicht von diesem "
                 + "Werkzeug stammt. Er bleibt unangetastet — er kann ein Prüflauf oder eine "
                 + "Benachrichtigung sein, und beides lautlos zu entfernen wäre schlimmer als "
                 + "eine nicht gebuchte Arbeitszeit. Entweder den Aufruf "
-                + "„tanss-git hook --repository \"$PWD\"“ von Hand in den vorhandenen Haken "
+                + "„tanss-git hook --repository \"$PWD\"“ von Hand in den vorhandenen Hook "
                 + "aufnehmen oder mit „--force“ ersetzen; dabei wird der bisherige Stand daneben "
                 + "aufbewahrt.");
         }
@@ -287,7 +287,7 @@ public sealed class HookInstaller
     }
 
     /// <summary>
-    /// Entfernt unseren Haken. Ein fremder bleibt liegen.
+    /// Entfernt unseren Hook. Ein fremder bleibt liegen.
     /// </summary>
     /// <returns>Der Befund <b>nach</b> dem Versuch.</returns>
     public static HookStatus Remove(string hooksDirectory)
@@ -325,9 +325,9 @@ public sealed class HookInstaller
     /// Kennzeichnung des Interpreters Zeichensalat; die Shell führt die Datei dann gar nicht
     /// oder mit dem falschen Interpreter aus.</para>
     /// <para><b>Erst danebenschreiben, dann umbenennen.</b> Ein Abbruch mitten im Schreiben
-    /// hinterliesse sonst einen halben Haken — und der läuft bei jedem Commit.</para>
+    /// hinterliesse sonst einen halben Hook — und der läuft bei jedem Commit.</para>
     /// <para><b>Ausführbar nur, wo es das Dateisystem kennt.</b> Unter Windows gibt es kein
-    /// Ausführungsrecht an der Datei; Git ruft den Haken dort über seine Bash auf.</para>
+    /// Ausführungsrecht an der Datei; Git ruft den Hook dort über seine Bash auf.</para>
     /// </remarks>
     private static void WriteExecutable(string path, string content)
     {
@@ -345,7 +345,7 @@ public sealed class HookInstaller
             if (!OperatingSystem.IsWindows())
             {
                 // 0755: Der Benutzer darf schreiben, alle duerfen lesen und ausfuehren. Ohne das
-                // Ausfuehrungsrecht uebergeht Git den Haken - lautlos, ohne Fehlermeldung.
+                // Ausfuehrungsrecht uebergeht Git den Hook - lautlos, ohne Fehlermeldung.
                 File.SetUnixFileMode(temporary,
                     UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute
                     | UnixFileMode.GroupRead | UnixFileMode.GroupExecute

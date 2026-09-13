@@ -2,7 +2,7 @@
 #  Der blockierende Lauf: jeder Push, jeder Pull Request.
 #
 #  Er laeuft auf allen drei Zielplattformen. Das ist hier kein Luxus: Der
-#  Haken ist eine Datei fuer eine Shell, der Tokenspeicher sieht auf jeder
+#  Hook ist eine Datei fuer eine Shell, der Tokenspeicher sieht auf jeder
 #  Plattform anders aus, und die Dateirechte gibt es nur unter Unix. Was
 #  davon bricht, bricht sonst erst beim Benutzer.
 # ---------------------------------------------------------------------------
@@ -84,9 +84,9 @@ jobs:
           retention-days: 14
 
   hook:
-    name: Der Haken laeuft wirklich (ubuntu)
+    name: Der Hook laeuft wirklich (ubuntu)
     # Ein eigener Auftrag, weil er etwas anderes prueft als die Testsuite:
-    # nicht, ob der Hakentext stimmt, sondern ob Git ihn ausfuehrt, ob das
+    # nicht, ob der Hook-Text stimmt, sondern ob Git ihn ausfuehrt, ob das
     # Werkzeug dabei den richtigen Commit findet und ob der Commit die
     # Warteschlange erreicht, obwohl die Instanz nicht antwortet. Das faellt
     # sonst erst beim Benutzer auf - und dort lautlos.
@@ -107,7 +107,7 @@ jobs:
           dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj
           -c Release -o artifacts/cli
 
-      - name: Haken einrichten und einen Commit erzeugen
+      - name: Hook einrichten und einen Commit erzeugen
         # Die Instanzadresse zeigt ins Leere: Gebucht werden SOLL hier nichts.
         # Geprueft wird, dass der Commit trotzdem in der Warteschlange landet -
         # genau das ist die Zusage "ein Netzausfall kostet keine Arbeitszeit".
@@ -138,7 +138,7 @@ jobs:
           git add datei.txt
           git commit -q -m "Erster Commit"
 
-          # Der Commit muss geschrieben sein - der Haken darf ihn nie kosten.
+          # Der Commit muss geschrieben sein - der Hook darf ihn nie kosten.
           test "$(git rev-list --count HEAD)" = "1"
 
       - name: Der Commit liegt in der Warteschlange
@@ -184,7 +184,7 @@ jobs:
           jq -e '.entries[0].remote_support_id == null' "$queue" > /dev/null
           echo "Der Commit wartet, mit Ticket aus dem Zweignamen, und nichts ist gebucht."
 
-      - name: Haken wieder entfernen
+      - name: Hook wieder entfernen
         run: |
           set -uo pipefail
           set +e   # siehe oben: die Shell laeuft mit -e

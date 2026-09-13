@@ -4,7 +4,7 @@ using Xunit;
 namespace TanssGitConnector.Git.Tests;
 
 /// <summary>
-/// Der Haken selbst: sein Text, seine Erkennungsmarke und der Umgang mit fremden Haken.
+/// Der Hook selbst: sein Text, seine Erkennungsmarke und der Umgang mit fremden Hooks.
 /// </summary>
 /// <remarks>
 /// Diese Datei wird von einer Shell ausgeführt, und zwar auf drei Betriebssystemen. Die drei
@@ -14,7 +14,7 @@ namespace TanssGitConnector.Git.Tests;
 public class HookTests
 {
     [Fact]
-    public void Der_Haken_traegt_die_Erkennungsmarke()
+    public void Der_Hook_traegt_die_Erkennungsmarke()
     {
         string script = HookScript.Build("/usr/local/bin/tanss-git");
 
@@ -23,14 +23,14 @@ public class HookTests
     }
 
     [Fact]
-    public void Ein_fremder_Haken_wird_nicht_als_unserer_erkannt()
+    public void Ein_fremder_Hook_wird_nicht_als_unserer_erkannt()
     {
         Assert.False(HookScript.IsOurs("#!/bin/sh\nmake test\n"));
         Assert.False(HookScript.IsOurs(null));
     }
 
     [Fact]
-    public void Der_Haken_beginnt_mit_der_Kennzeichnung_des_Interpreters()
+    public void Der_Hook_beginnt_mit_der_Kennzeichnung_des_Interpreters()
     {
         Assert.StartsWith("#!/bin/sh\n", HookScript.Build("/usr/local/bin/tanss-git"),
                           StringComparison.Ordinal);
@@ -44,13 +44,13 @@ public class HookTests
     /// sieht nach einem kaputten Programm aus und ist keiner.
     /// </remarks>
     [Fact]
-    public void Der_Haken_enthaelt_keine_Wagenrufe()
+    public void Der_Hook_enthaelt_keine_Wagenrufe()
     {
         Assert.DoesNotContain('\r', HookScript.Build("/usr/local/bin/tanss-git"));
     }
 
     [Fact]
-    public void Der_Haken_endet_mit_Null()
+    public void Der_Hook_endet_mit_Null()
     {
         Assert.Contains("exit 0", HookScript.Build("/usr/local/bin/tanss-git"),
                         StringComparison.Ordinal);
@@ -68,7 +68,7 @@ public class HookTests
     /// </summary>
     /// <remarks>
     /// In doppelten Anführungszeichen würde die Shell daraus eine Ersetzung machen — und der
-    /// Haken riefe ein Programm auf, das es nicht gibt.
+    /// Hook riefe ein Programm auf, das es nicht gibt.
     /// </remarks>
     [Fact]
     public void Ein_Dollarzeichen_im_Pfad_wird_nicht_ersetzt()
@@ -102,7 +102,7 @@ public class HookTests
     }
 
     [Fact]
-    public void Der_geschriebene_Haken_traegt_keinen_Vorspann()
+    public void Der_geschriebene_Hook_traegt_keinen_Vorspann()
     {
         using Sandbox sandbox = new();
 
@@ -115,14 +115,14 @@ public class HookTests
     }
 
     /// <summary>
-    /// Ein fremder Haken wird nicht überschrieben — und nicht gelöscht.
+    /// Ein fremder Hook wird nicht überschrieben — und nicht gelöscht.
     /// </summary>
     /// <remarks>
     /// Er kann ein Prüflauf, eine Signatur oder eine Benachrichtigung sein. Ihn lautlos zu
     /// entfernen wäre schlimmer als eine nicht gebuchte Arbeitszeit.
     /// </remarks>
     [Fact]
-    public void Ein_fremder_Haken_bleibt_unangetastet()
+    public void Ein_fremder_Hook_bleibt_unangetastet()
     {
         using Sandbox sandbox = new();
         string path = Path.Combine(sandbox.Path, HookScript.FileName);

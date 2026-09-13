@@ -233,7 +233,7 @@ public sealed class ActivityLog
         {
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_path)!);
 
-            // Anhaengen statt lesen-aendern-schreiben: Zwei Haken gleichzeitig schreiben dann
+            // Anhaengen statt lesen-aendern-schreiben: Zwei Hook gleichzeitig schreiben dann
             // zwei Zeilen und nicht eine halbe. FileShare.ReadWrite, damit ein zweiter Aufruf
             // nicht an der offenen Datei scheitert.
             using FileStream stream = new(_path, FileMode.Append, FileAccess.Write,

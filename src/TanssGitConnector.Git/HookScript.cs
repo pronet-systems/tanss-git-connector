@@ -3,26 +3,26 @@ using System.Text;
 namespace TanssGitConnector.Git;
 
 /// <summary>
-/// Der Text des <c>post-commit</c>-Hakens.
+/// Der Text des <c>post-commit</c>-Hooks.
 /// </summary>
 /// <remarks>
-/// <para><b>Warum ein Shell-Skript und kein Programmaufruf.</b> Git ruft Haken über eine Shell
+/// <para><b>Warum ein Shell-Skript und kein Programmaufruf.</b> Git ruft Hook über eine Shell
 /// auf — unter Windows über die mitgelieferte Bash von Git für Windows. Ein Skript ist damit die
 /// einzige Form, die auf allen drei Plattformen unverändert funktioniert.</para>
 ///
-/// <para><b>Der Haken endet immer mit 0.</b> Wenn er läuft, ist der Commit bereits geschrieben;
-/// Git wertet den Rückgabewert von <c>post-commit</c> ohnehin nicht aus. Ein Haken, der einen
+/// <para><b>Der Hook endet immer mit 0.</b> Wenn er läuft, ist der Commit bereits geschrieben;
+/// Git wertet den Rückgabewert von <c>post-commit</c> ohnehin nicht aus. Ein Hook, der einen
 /// Fehler nach aussen trägt, sähe nach einem kaputten Commit aus und würde den Techniker zu
 /// einem <c>--amend</c> verleiten, das nur einen zweiten Hash erzeugt.</para>
 ///
-/// <para><b>Der Pfad zum Programm steht ausgeschrieben im Haken.</b> Nicht der blosse Name:
+/// <para><b>Der Pfad zum Programm steht ausgeschrieben im Hook.</b> Nicht der blosse Name:
 /// Läuft Git aus einer Entwicklungsumgebung oder einem Oberflächenprogramm heraus, bringt das
-/// häufig einen eigenen, knappen Suchpfad mit, in dem <c>tanss-git</c> nicht liegt. Der Haken
+/// häufig einen eigenen, knappen Suchpfad mit, in dem <c>tanss-git</c> nicht liegt. Der Hook
 /// liefe dann bei jedem Commit ins Leere, und zwar lautlos.</para>
 /// </remarks>
 public static class HookScript
 {
-    /// <summary>Der Dateiname des Hakens.</summary>
+    /// <summary>Der Dateiname des Hooks.</summary>
     public const string FileName = "post-commit";
 
     /// <summary>
@@ -31,13 +31,13 @@ public static class HookScript
     /// <remarks>
     /// <b>Sie entscheidet über Anfassen oder Stehenlassen.</b> Ohne sie wird eine vorgefundene
     /// Datei niemals überschrieben und beim Abschalten niemals gelöscht — ein fremder
-    /// <c>post-commit</c>-Haken kann ein Prüflauf, eine Signatur oder eine Benachrichtigung
+    /// <c>post-commit</c>-Hook kann ein Prüflauf, eine Signatur oder eine Benachrichtigung
     /// sein, und ihn kommentarlos zu entfernen wäre ein Eingriff in die Arbeit eines anderen.
     /// </remarks>
     public const string Marker = "tanss-git-connector:hook:v1";
 
     /// <summary>
-    /// Baut den Haken für ein bestimmtes Programm.
+    /// Baut den Hook für ein bestimmtes Programm.
     /// </summary>
     /// <param name="executablePath">Der vollständige Pfad zu <c>tanss-git</c>.</param>
     /// <returns>Der Skripttext mit Zeilenumbrüchen im Unix-Format.</returns>
@@ -62,7 +62,7 @@ public static class HookScript
             "# diese Datei nicht an — und „tanss-git enable“ überschreibt sie nicht.",
             "# " + Marker,
             "#",
-            "# Der Haken darf den Commit nicht scheitern lassen: Er ist bereits geschrieben,",
+            "# Der Hook darf den Commit nicht scheitern lassen: Er ist bereits geschrieben,",
             "# wenn diese Zeilen laufen. Deshalb endet die Datei in jedem Fall mit 0.",
             "",
             command + " hook --repository \"$PWD\" || true",
@@ -74,14 +74,14 @@ public static class HookScript
     }
 
     /// <summary>
-    /// Trägt dieser Text unseren Haken?
+    /// Trägt dieser Text unseren Hook?
     /// </summary>
     /// <param name="content">Der Inhalt der vorgefundenen Datei.</param>
     public static bool IsOurs(string? content) =>
         content is not null && content.Contains(Marker, StringComparison.Ordinal);
 
     /// <summary>
-    /// Bringt einen Pfad in eine Form, die die Shell des Hakens versteht.
+    /// Bringt einen Pfad in eine Form, die die Shell des Hooks versteht.
     /// </summary>
     /// <remarks>
     /// <para>Zwei Umbauten, beide nötig. Erstens werden umgekehrte Schrägstriche zu

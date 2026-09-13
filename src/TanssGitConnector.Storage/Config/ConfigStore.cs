@@ -12,7 +12,7 @@ namespace TanssGitConnector.Storage.Config;
 /// niemals geöffnet und teilweise überschrieben — ein Abbruch mitten im Schreiben liesse sonst
 /// eine halbe Datei zurück, und der nächste Commit fände weder die alte noch die neue
 /// Einstellung vor.</para>
-/// <para>Gelesen wird bei <b>jedem</b> Aufruf des Hakens neu. Das kostet einen Dateizugriff je
+/// <para>Gelesen wird bei <b>jedem</b> Aufruf des Hooks neu. Das kostet einen Dateizugriff je
 /// Commit und ist es wert: Wer eine Einstellung ändert, will sie beim nächsten Commit wirksam
 /// sehen und nicht erst nach einem Neustart von irgendetwas.</para>
 /// </remarks>

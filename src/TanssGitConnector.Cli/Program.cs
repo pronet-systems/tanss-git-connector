@@ -14,11 +14,11 @@ namespace TanssGitConnector.Cli;
 /// <remarks>
 /// <para><b>Hier stürzt nichts ab.</b> Jeder Weg endet mit einem Rückgabewert und einem Satz,
 /// der sagt, was los ist — auch und gerade der erste Aufruf auf einem frischen Rechner, auf dem
-/// noch keine Konfiguration liegt. Ein Haken, der mit einer Ausnahme abbricht, sieht aus wie ein
+/// noch keine Konfiguration liegt. Ein Hook, der mit einer Ausnahme abbricht, sieht aus wie ein
 /// kaputtes Werkzeug und nicht wie eine fehlende Einrichtung.</para>
 ///
 /// <para><b>Zwei Befehle laufen ohne Konfiguration:</b> <c>setup</c> legt sie an, und
-/// <c>disable</c> nimmt den Haken zurück — gerade dann, wenn die Einrichtung kaputt ist, muss
+/// <c>disable</c> nimmt den Hook zurück — gerade dann, wenn die Einrichtung kaputt ist, muss
 /// man ihn loswerden können, ohne sie erst zu reparieren.</para>
 /// </remarks>
 internal static class Program
@@ -95,7 +95,7 @@ internal static class Program
             error.WriteLine("Abgebrochen.");
 
             // Ein Abbruch durch den Benutzer ist kein Fehler - aber auch kein erledigter
-            // Vorgang. Der Haken macht daraus ohnehin eine 0.
+            // Vorgang. Der Hook macht daraus ohnehin eine 0.
             return ExitCode.Warning;
         }
         catch (Exception exception)
@@ -182,11 +182,11 @@ internal static class Program
     /// Was ohne Konfiguration noch geht.
     /// </summary>
     /// <remarks>
-    /// <para><b>Der Haken schweigt und endet mit 0.</b> Wer das Werkzeug deinstalliert oder die
+    /// <para><b>Der Hook schweigt und endet mit 0.</b> Wer das Werkzeug deinstalliert oder die
     /// Konfiguration verschoben hat, soll nicht bei jedem Commit eine Fehlermeldung sehen — der
     /// Commit selbst ist in Ordnung. Auf der Fehlerausgabe steht eine Zeile, die sagt, warum
     /// nichts gebucht wurde.</para>
-    /// <para><b><c>disable</c> geht trotzdem.</b> Einen Haken loszuwerden darf nicht davon
+    /// <para><b><c>disable</c> geht trotzdem.</b> Einen Hook loszuwerden darf nicht davon
     /// abhängen, dass die Einrichtung heil ist — im Gegenteil, genau dann will man ihn los.</para>
     /// </remarks>
     private static async Task<int> WithoutConfigurationAsync(CliArgs parsed, ConfigStore store,
@@ -217,7 +217,7 @@ internal static class Program
         return ExitCode.Broken;
     }
 
-    /// <summary>Entfernt den Haken, ohne dass eine Konfiguration vorliegen muss.</summary>
+    /// <summary>Entfernt den Hook, ohne dass eine Konfiguration vorliegen muss.</summary>
     private static async Task<int> HookWithoutConfigurationAsync(string directory, bool global,
                                                                  TextWriter output,
                                                                  TextWriter error,
@@ -246,14 +246,14 @@ internal static class Program
             if (before.State != Git.HookState.Ours)
             {
                 output.WriteLine(before.State == Git.HookState.Missing
-                    ? "Hier liegt kein Haken. Es war nichts zu tun."
-                    : "Dort liegt ein fremder Haken. Er bleibt unangetastet: " + before.Path);
+                    ? "Hier liegt kein Hook. Es war nichts zu tun."
+                    : "Dort liegt ein fremder Hook. Er bleibt unangetastet: " + before.Path);
 
                 return ExitCode.Healthy;
             }
 
             _ = await installer.DisableRepositoryAsync(directory, ct).ConfigureAwait(false);
-            output.WriteLine("Der Haken ist entfernt: " + before.Path);
+            output.WriteLine("Der Hook ist entfernt: " + before.Path);
             return ExitCode.Healthy;
         }
         catch (Git.GitException exception)

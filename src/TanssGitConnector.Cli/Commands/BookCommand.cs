@@ -12,10 +12,10 @@ namespace TanssGitConnector.Cli.Commands;
 /// Bucht einen Commit: <c>tanss-git hook</c> und <c>tanss-git book</c>.
 /// </summary>
 /// <remarks>
-/// <para>Beide Befehle tun dasselbe und unterscheiden sich in drei Punkten: Der Haken nimmt
+/// <para>Beide Befehle tun dasselbe und unterscheiden sich in drei Punkten: Der Hook nimmt
 /// immer <c>HEAD</c>, er gibt höchstens eine Zeile aus, und er endet <b>immer</b> mit 0.</para>
 ///
-/// <para><b>Warum der Haken nie scheitert.</b> Wenn er läuft, ist der Commit bereits
+/// <para><b>Warum der Hook nie scheitert.</b> Wenn er läuft, ist der Commit bereits
 /// geschrieben. Ein Rückgabewert ungleich 0 sähe für den Techniker nach einem misslungenen
 /// Commit aus und verleitete zu einem <c>--amend</c> — das erzeugt einen neuen Hash, und der
 /// alte bliebe als eigener Eintrag in der Warteschlange liegen.</para>
@@ -135,7 +135,7 @@ internal static class BookCommand
     }
 
     /// <summary>
-    /// Schickt den soeben eingereihten Commit los — mit der Zeitgrenze des Hakens.
+    /// Schickt den soeben eingereihten Commit los — mit der Zeitgrenze des Hooks.
     /// </summary>
     /// <remarks>
     /// <b>Die Zeitgrenze ist die Zeit, die der Techniker wartet.</b> Läuft sie ab, bleibt der
@@ -187,7 +187,7 @@ internal static class BookCommand
             // ungeklaert vermerkt - hier wird deshalb NICHT ein zweites Mal Fail aufgerufen:
             // Das zaehlte den Versuch doppelt und verdoppelte den Rueckstau.
             composition.Log.Warning("hook.timeout",
-                "Die Zeitgrenze des Hakens ist abgelaufen, bevor TANSS geantwortet hat. Der "
+                "Die Zeitgrenze des Hooks ist abgelaufen, bevor TANSS geantwortet hat. Der "
                 + "Commit bleibt in der Warteschlange; vor der Wiederholung wird geprüft, ob er "
                 + "doch angekommen ist.", entry.RemoteMaintenanceId, entry.Repository);
 
@@ -252,7 +252,7 @@ internal static class BookCommand
         }
     }
 
-    /// <summary>Die eine Zeile, die der Haken ausgibt.</summary>
+    /// <summary>Die eine Zeile, die der Hook ausgibt.</summary>
     private static string Describe(BookResult result, Composition composition)
     {
         RemoteSupportWrite payload = result.Payload!;

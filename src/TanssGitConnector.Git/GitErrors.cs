@@ -16,7 +16,7 @@ public class GitException : Exception
 /// <remarks>
 /// Getrennt von <see cref="GitException"/>, weil der Aufrufer anders reagieren muss: Hier hilft
 /// kein zweiter Versuch, sondern nur eine Installation oder ein berichtigter Pfad. Der Fall
-/// tritt in der Praxis fast nur auf, wenn der Haken aus einer Oberfläche heraus läuft, die einen
+/// tritt in der Praxis fast nur auf, wenn der Hook aus einer Oberfläche heraus läuft, die einen
 /// eigenen, knappen Suchpfad mitbringt.
 /// </remarks>
 public sealed class GitNotFoundException : GitException

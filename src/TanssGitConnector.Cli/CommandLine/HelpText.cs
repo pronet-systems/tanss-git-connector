@@ -26,14 +26,14 @@ public static class HelpText
         output.WriteLine();
         output.WriteLine("Einrichten");
         output.WriteLine("  setup                     Anmeldung, Token, Mitarbeiter, Anbindung — einmalig");
-        output.WriteLine("  enable [--global]         den post-commit-Haken einrichten");
-        output.WriteLine("         [--force]          einen fremden Haken ersetzen (der alte wird gesichert)");
-        output.WriteLine("  disable [--global]        den Haken wieder entfernen");
+        output.WriteLine("  enable [--global]         den post-commit-Hook einrichten");
+        output.WriteLine("         [--force]          einen fremden Hook ersetzen (der alte wird gesichert)");
+        output.WriteLine("  disable [--global]        den Hook wieder entfernen");
         output.WriteLine("  status                    zeigt, was eingerichtet ist");
         output.WriteLine("  types                     die externen Fernwartungs-Anbindungen der Instanz");
         output.WriteLine();
         output.WriteLine("Betrieb");
-        output.WriteLine("  doctor                    prüft Erreichbarkeit, Token, Rechte, Haken, Warteschlange");
+        output.WriteLine("  doctor                    prüft Erreichbarkeit, Token, Rechte, Hook, Warteschlange");
         output.WriteLine("  queue [--flush]           Warteschlange anzeigen; --flush sendet die fälligen Einträge");
         output.WriteLine("  log [--lines N]           das Änderungsprotokoll, jüngste Zeile zuerst");
         output.WriteLine("  token status|rotate       Restlaufzeit anzeigen, Token erneuern");
@@ -41,7 +41,7 @@ public static class HelpText
         output.WriteLine("Buchen");
         output.WriteLine("  book <Commit> [--ticket N] einen Commit nachträglich buchen");
         output.WriteLine("       [--dry-run]           zeigt nur, was gebucht würde");
-        output.WriteLine("  hook [--ticket N]         der Aufruf aus dem Haken — endet immer mit 0");
+        output.WriteLine("  hook [--ticket N]         der Aufruf aus dem Hook — endet immer mit 0");
         output.WriteLine("       [--dry-run]");
         output.WriteLine();
         output.WriteLine("Überall gültig");

@@ -18,7 +18,7 @@ public sealed record TanssOptions
     /// </summary>
     /// <remarks>
     /// Kürzer als beim Log-Watcher vorgesehen, und das ist Absicht: Der häufigste Aufrufer ist
-    /// ein <c>post-commit</c>-Haken, und der hält den Techniker auf. Die Voreinstellung setzt
+    /// ein <c>post-commit</c>-Hook, und der hält den Techniker auf. Die Voreinstellung setzt
     /// die Konfiguration, nicht diese Zeile.
     /// </remarks>
     public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(15);

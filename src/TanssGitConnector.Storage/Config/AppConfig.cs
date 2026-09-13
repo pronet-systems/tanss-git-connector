@@ -35,7 +35,7 @@ public sealed record AppConfig
     /// <summary>Woher die Ticketnummer kommt und ob sie geprüft wird.</summary>
     public TicketsSection Tickets { get; init; } = new();
 
-    /// <summary>Das Verhalten des <c>post-commit</c>-Hakens.</summary>
+    /// <summary>Das Verhalten des <c>post-commit</c>-Hooks.</summary>
     public HookSection Hook { get; init; } = new();
 
     /// <summary>Vorgeschalteter Proxy. Bleibt abgeschaltet, wenn keiner nötig ist.</summary>
@@ -214,7 +214,7 @@ public sealed record TicketsSection
     public bool Verify { get; init; } = true;
 }
 
-/// <summary>Das Verhalten des <c>post-commit</c>-Hakens.</summary>
+/// <summary>Das Verhalten des <c>post-commit</c>-Hooks.</summary>
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record HookSection
 {
@@ -222,14 +222,14 @@ public sealed record HookSection
     /// Nach dem Einreihen gleich senden?
     /// </summary>
     /// <remarks>
-    /// Voreingestellt an. Aus ergibt einen Haken, der nur einreiht — dann bringt ein
+    /// Voreingestellt an. Aus ergibt einen Hook, der nur einreiht — dann bringt ein
     /// <c>tanss-git queue --flush</c> die Commits nach TANSS, etwa aus einem Zeitplan heraus.
     /// Das ist der richtige Weg auf einem Rechner ohne ständige Verbindung zur Instanz.
     /// </remarks>
     public bool SendImmediately { get; init; } = true;
 
     /// <summary>
-    /// Wie lange der Haken beim Senden höchstens braucht, in Sekunden.
+    /// Wie lange der Hook beim Senden höchstens braucht, in Sekunden.
     /// </summary>
     /// <remarks>
     /// Das ist die Zeit, die der Techniker nach jedem Commit wartet. Läuft sie ab, bleibt der

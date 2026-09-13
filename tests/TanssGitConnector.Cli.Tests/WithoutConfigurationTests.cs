@@ -7,21 +7,21 @@ namespace TanssGitConnector.Cli.Tests;
 /// Was auf einem Rechner ohne Einrichtung geschieht.
 /// </summary>
 /// <remarks>
-/// Die Zusage lautet: Kein Befehl stürzt ab, jeder nennt die Einrichtung — und der Haken
+/// Die Zusage lautet: Kein Befehl stürzt ab, jeder nennt die Einrichtung — und der Hook
 /// schweigt fast und endet mit 0. Sie ist nur etwas wert, wenn sie geprüft wird, und prüfen
 /// liesse sie sich sonst nur, indem ein Test das Benutzerprofil des Ausführenden leerräumt.
 /// </remarks>
 public class WithoutConfigurationTests
 {
     /// <summary>
-    /// Der Haken endet mit 0, auch ohne jede Einrichtung.
+    /// Der Hook endet mit 0, auch ohne jede Einrichtung.
     /// </summary>
     /// <remarks>
     /// Wenn er läuft, ist der Commit bereits geschrieben. Ein Rückgabewert ungleich 0 sähe für
     /// den Techniker nach einem misslungenen Commit aus.
     /// </remarks>
     [Fact]
-    public async Task Der_Haken_endet_mit_Null_und_nennt_die_Einrichtung()
+    public async Task Der_Hook_endet_mit_Null_und_nennt_die_Einrichtung()
     {
         using Sandbox sandbox = new();
         StringWriter output = new();
@@ -34,7 +34,7 @@ public class WithoutConfigurationTests
     }
 
     [Fact]
-    public async Task Der_Haken_schweigt_mit_quiet()
+    public async Task Der_Hook_schweigt_mit_quiet()
     {
         using Sandbox sandbox = new();
         StringWriter output = new();

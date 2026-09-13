@@ -81,7 +81,7 @@ public static class Report
     public static string Moment(DateTimeOffset moment) =>
         moment.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
-    /// <summary>Nur die Uhrzeit — für die Zeile, die der Haken ausgibt.</summary>
+    /// <summary>Nur die Uhrzeit — für die Zeile, die der Hook ausgibt.</summary>
     public static string Clock(DateTimeOffset moment) =>
         moment.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture);
 

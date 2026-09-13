@@ -2,7 +2,7 @@
 *.sln       text eol=crlf
 *.csproj    text eol=crlf
 *.props     text eol=crlf
-# Der Hakentext geht als Datei ins Dateisystem und wird von einer Shell gelesen.
+# Der Hook-Text geht als Datei ins Dateisystem und wird von einer Shell gelesen.
 # CRLF darin ergaebe unter Unix "bad interpreter: /bin/sh^M".
 *.sh        text eol=lf
 *.png binary

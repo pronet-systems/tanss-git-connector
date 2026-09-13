@@ -113,8 +113,8 @@ internal static class QueueCommand
     /// Räumt Erledigtes und altes Protokoll fort.
     /// </summary>
     /// <remarks>
-    /// Hier und im Doktor, nicht im Haken: Das Aufräumen schreibt beide Dateien neu, und der
-    /// Haken soll der schnellste Weg bleiben. Wer nie aufräumt, hat eine wachsende Datei —
+    /// Hier und im Doktor, nicht im Hook: Das Aufräumen schreibt beide Dateien neu, und der
+    /// Hook soll der schnellste Weg bleiben. Wer nie aufräumt, hat eine wachsende Datei —
     /// wer bei jedem Commit aufräumt, wartet bei jedem Commit darauf.
     /// </remarks>
     internal static void Prune(Composition composition, TextWriter output)

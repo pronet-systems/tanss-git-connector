@@ -79,7 +79,7 @@ internal sealed class Composition : IDisposable
     /// <summary>Der lesende Zugriff auf ein Repository.</summary>
     public GitRepository Repository { get; }
 
-    /// <summary>Das Einrichten des Hakens.</summary>
+    /// <summary>Das Einrichten des Hooks.</summary>
     public HookInstaller Hooks { get; }
 
     /// <summary>

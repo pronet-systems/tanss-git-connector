@@ -79,12 +79,12 @@ public static class StoragePaths
     /// </summary>
     /// <remarks>
     /// Git kopiert beim <c>git init</c> und <c>git clone</c> den <b>Inhalt</b> dieses
-    /// Verzeichnisses in das neue Repository. Der Haken liegt deshalb darunter in
+    /// Verzeichnisses in das neue Repository. Der Hook liegt deshalb darunter in
     /// <c>hooks/post-commit</c> und nicht unmittelbar hier.
     /// </remarks>
     public static string TemplateDirectory => Path.Combine(StateDirectory, TemplateFolderName);
 
-    /// <summary>Das Hakenverzeichnis innerhalb der Vorlage.</summary>
+    /// <summary>Das Hook-Verzeichnis innerhalb der Vorlage.</summary>
     public static string TemplateHooksDirectory => Path.Combine(TemplateDirectory, "hooks");
 
     private static string? Override()

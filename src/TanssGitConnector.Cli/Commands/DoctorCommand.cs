@@ -31,7 +31,7 @@ internal static class DoctorCommand
     /// <summary>Führt alle Prüfungen aus.</summary>
     /// <param name="composition">Die Bausteine dieses Laufs.</param>
     /// <param name="configPath">Der Pfad der Konfiguration, für die Anzeige.</param>
-    /// <param name="directory">Das Repository, dessen Haken geprüft wird.</param>
+    /// <param name="directory">Das Repository, dessen Hook geprüft wird.</param>
     /// <param name="output">Die Ausgabe.</param>
     /// <param name="ct">Abbruchmarke.</param>
     public static async Task<int> RunAsync(Composition composition, string configPath,
@@ -272,27 +272,27 @@ internal static class DoctorCommand
 
             return here.State switch
             {
-                HookState.Ours => new CheckResult("Haken", CheckLevel.Ok,
+                HookState.Ours => new CheckResult("Hook", CheckLevel.Ok,
                     $"In diesem Repository eingerichtet: {here.Path}. {vorlage}"),
 
-                HookState.Foreign => new CheckResult("Haken", CheckLevel.Warn,
-                    $"In {here.Path} liegt ein fremder post-commit-Haken. Er bleibt unangetastet; "
+                HookState.Foreign => new CheckResult("Hook", CheckLevel.Warn,
+                    $"In {here.Path} liegt ein fremder post-commit-Hook. Er bleibt unangetastet; "
                     + "Commits in diesem Repository werden nicht gebucht. Entweder den Aufruf "
                     + "von Hand aufnehmen oder mit „tanss-git enable --force“ ersetzen. "
                     + vorlage),
 
-                HookState.Unreadable => new CheckResult("Haken", CheckLevel.Warn,
+                HookState.Unreadable => new CheckResult("Hook", CheckLevel.Warn,
                     $"{here.Path} liess sich nicht lesen: {here.Detail} " + vorlage),
 
-                _ => new CheckResult("Haken", CheckLevel.Warn,
-                    "In diesem Repository ist kein Haken eingerichtet; Commits hier werden nicht "
+                _ => new CheckResult("Hook", CheckLevel.Warn,
+                    "In diesem Repository ist kein Hook eingerichtet; Commits hier werden nicht "
                     + "gebucht (tanss-git enable). " + vorlage),
             };
         }
         catch (NotARepositoryException)
         {
             // Kein Repository ist kein Mangel: Der Doktor laeuft oft aus dem Heimatverzeichnis.
-            return new CheckResult("Haken", CheckLevel.Ok,
+            return new CheckResult("Hook", CheckLevel.Ok,
                 $"Das Arbeitsverzeichnis gehört zu keinem Repository — hier ist nichts "
                 + $"einzurichten. {vorlage}");
         }

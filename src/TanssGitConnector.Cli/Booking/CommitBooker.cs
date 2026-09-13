@@ -84,7 +84,7 @@ internal sealed class CommitBooker
     /// Liest einen Commit und reiht ihn ein.
     /// </summary>
     /// <param name="directory">Ein Verzeichnis innerhalb des Repositorys.</param>
-    /// <param name="revision">Die Fassung; im Haken <c>HEAD</c>.</param>
+    /// <param name="revision">Die Fassung; im Hook <c>HEAD</c>.</param>
     /// <param name="explicitTicketId">Eine von Hand angegebene Ticketnummer, oder 0.</param>
     /// <param name="dryRun">Nur zeigen, nichts einreihen.</param>
     /// <param name="ct">Abbruchmarke.</param>
@@ -132,7 +132,7 @@ internal sealed class CommitBooker
 
         if (!enqueued.Added)
         {
-            // Derselbe Commit ein zweites Mal - nach einem zweiten Haken, einem Nachreichen von
+            // Derselbe Commit ein zweites Mal - nach einem zweiten Hook, einem Nachreichen von
             // Hand oder einem wiederholten Lauf. Nicht anhaengen: Der Hash ist der Schluessel,
             // und TANSS dedupliziert nicht.
             _log.Info("book.duplicate",

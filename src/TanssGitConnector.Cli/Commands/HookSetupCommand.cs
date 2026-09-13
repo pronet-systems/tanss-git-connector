@@ -4,26 +4,26 @@ using TanssGitConnector.Storage;
 namespace TanssGitConnector.Cli.Commands;
 
 /// <summary>
-/// Richtet den <c>post-commit</c>-Haken ein und wieder ab: <c>enable</c> und <c>disable</c>.
+/// Richtet den <c>post-commit</c>-Hook ein und wieder ab: <c>enable</c> und <c>disable</c>.
 /// </summary>
 /// <remarks>
 /// <para><b>Zwei Wege, und sie schliessen sich nicht aus.</b> Ohne <c>--global</c> wird der
-/// Haken in <b>dieses</b> Repository geschrieben und wirkt sofort. Mit <c>--global</c> entsteht
+/// Hook in <b>dieses</b> Repository geschrieben und wirkt sofort. Mit <c>--global</c> entsteht
 /// eine Vorlage, die Git bei jedem künftigen <c>git init</c> und <c>git clone</c> in das neue
 /// Repository kopiert — bestehende Repositorys erreicht sie nicht.</para>
 ///
 /// <para><b>Eine fremde Vorlage wird nicht verdrängt.</b> Steht in <c>init.templatedir</c>
-/// bereits ein Verzeichnis, das nicht unseres ist, legen wir unseren Haken <i>dort</i> hinein
+/// bereits ein Verzeichnis, das nicht unseres ist, legen wir unseren Hook <i>dort</i> hinein
 /// und lassen die Einstellung unberührt. Wer eine eigene Vorlage pflegt, hat Gründe dafür, und
-/// sie umzubiegen nähme ihm seine anderen Haken.</para>
+/// sie umzubiegen nähme ihm seine anderen Hooks.</para>
 /// </remarks>
 internal static class HookSetupCommand
 {
-    /// <summary>Richtet den Haken ein.</summary>
+    /// <summary>Richtet den Hook ein.</summary>
     /// <param name="composition">Die Bausteine dieses Laufs.</param>
     /// <param name="directory">Das Repository — nur ohne <paramref name="global"/> von Belang.</param>
     /// <param name="global">Als Vorlage für künftige Repositorys statt in dieses.</param>
-    /// <param name="force">Einen fremden Haken ersetzen; der bisherige wird gesichert.</param>
+    /// <param name="force">Einen fremden Hook ersetzen; der bisherige wird gesichert.</param>
     /// <param name="output">Die gewöhnliche Ausgabe.</param>
     /// <param name="error">Die Fehlerausgabe.</param>
     /// <param name="ct">Abbruchmarke.</param>
@@ -59,7 +59,7 @@ internal static class HookSetupCommand
         }
     }
 
-    /// <summary>Entfernt den Haken wieder.</summary>
+    /// <summary>Entfernt den Hook wieder.</summary>
     public static async Task<int> DisableAsync(Composition composition, string directory,
                                                bool global, TextWriter output, TextWriter error,
                                                CancellationToken ct = default)
@@ -88,13 +88,13 @@ internal static class HookSetupCommand
         HookStatus status = await composition.Hooks
             .EnableRepositoryAsync(directory, executable, force, ct).ConfigureAwait(false);
 
-        output.WriteLine("Der Haken ist eingerichtet:");
+        output.WriteLine("Der Hook ist eingerichtet:");
         output.WriteLine("  " + status.Path);
         output.WriteLine();
         output.WriteLine("Ab dem nächsten Commit in diesem Repository wird gebucht.");
         output.WriteLine("Probelauf ohne Buchung: tanss-git book HEAD --dry-run");
 
-        composition.Log.Info("hook.enabled", "Haken eingerichtet: " + status.Path);
+        composition.Log.Info("hook.enabled", "Hook eingerichtet: " + status.Path);
         return ExitCode.Healthy;
     }
 
@@ -125,7 +125,7 @@ internal static class HookSetupCommand
         if (foreign)
         {
             output.WriteLine("Hinweis: In init.templatedir stand bereits eine eigene Vorlage. Der");
-            output.WriteLine("Haken wurde dort abgelegt, die Einstellung selbst blieb unverändert.");
+            output.WriteLine("Hook wurde dort abgelegt, die Einstellung selbst blieb unverändert.");
             output.WriteLine();
         }
 
@@ -149,19 +149,19 @@ internal static class HookSetupCommand
         {
             case HookState.Ours:
                 _ = await composition.Hooks.DisableRepositoryAsync(directory, ct).ConfigureAwait(false);
-                output.WriteLine("Der Haken ist entfernt: " + before.Path);
+                output.WriteLine("Der Hook ist entfernt: " + before.Path);
                 output.WriteLine("Commits in diesem Repository werden nicht mehr gebucht.");
-                composition.Log.Info("hook.disabled", "Haken entfernt: " + before.Path);
+                composition.Log.Info("hook.disabled", "Hook entfernt: " + before.Path);
                 return ExitCode.Healthy;
 
             case HookState.Missing:
-                output.WriteLine("Hier liegt kein Haken. Es war nichts zu tun.");
+                output.WriteLine("Hier liegt kein Hook. Es war nichts zu tun.");
                 return ExitCode.Healthy;
 
             default:
-                // Ein fremder Haken bleibt liegen. Ihn zu entfernen, weil er zufaellig so
+                // Ein fremder Hook bleibt liegen. Ihn zu entfernen, weil er zufaellig so
                 // heisst wie unserer, waere ein Eingriff in die Arbeit eines anderen.
-                output.WriteLine("In " + before.Path + " liegt ein post-commit-Haken, der nicht");
+                output.WriteLine("In " + before.Path + " liegt ein post-commit-Hook, der nicht");
                 output.WriteLine("von diesem Werkzeug stammt. Er bleibt unangetastet.");
                 return ExitCode.Warning;
         }
@@ -180,14 +180,14 @@ internal static class HookSetupCommand
 
         if (after.State == HookState.Foreign)
         {
-            output.WriteLine("In der Vorlage liegt ein fremder post-commit-Haken. Er bleibt liegen.");
+            output.WriteLine("In der Vorlage liegt ein fremder post-commit-Hook. Er bleibt liegen.");
             return ExitCode.Warning;
         }
 
         bool unset = await composition.Hooks
             .UnsetTemplateDirectoryAsync(StoragePaths.TemplateDirectory, ct).ConfigureAwait(false);
 
-        output.WriteLine("Der Haken ist aus der Vorlage entfernt.");
+        output.WriteLine("Der Hook ist aus der Vorlage entfernt.");
 
         if (unset)
         {
@@ -199,7 +199,7 @@ internal static class HookSetupCommand
         }
 
         output.WriteLine();
-        output.WriteLine("Bereits eingerichtete Repositorys behalten ihren Haken. Dort gilt:");
+        output.WriteLine("Bereits eingerichtete Repositorys behalten ihren Hook. Dort gilt:");
         output.WriteLine("  tanss-git disable         (im jeweiligen Verzeichnis)");
 
         composition.Log.Info("hook.disabled-global", "Vorlage entfernt.");
@@ -210,14 +210,14 @@ internal static class HookSetupCommand
     /// Der vollständige Pfad zu diesem Programm.
     /// </summary>
     /// <remarks>
-    /// <see cref="Environment.ProcessPath"/> und nicht der Name: Der Haken läuft später in einer
+    /// <see cref="Environment.ProcessPath"/> und nicht der Name: Der Hook läuft später in einer
     /// Shell, deren Suchpfad niemand kennt — aus einer Entwicklungsumgebung heraus ist er
-    /// regelmässig knapper als der eines Terminals. Ein Haken, der sein Programm nicht findet,
+    /// regelmässig knapper als der eines Terminals. Ein Hook, der sein Programm nicht findet,
     /// scheitert lautlos bei jedem Commit.
     /// </remarks>
     internal static string ExecutablePath() =>
         Environment.ProcessPath
         ?? throw new HookException(
-            "Der eigene Programmpfad liess sich nicht ermitteln. Ohne ihn kann kein Haken "
+            "Der eigene Programmpfad liess sich nicht ermitteln. Ohne ihn kann kein Hook "
             + "geschrieben werden, der das Programm später wiederfindet.");
 }
