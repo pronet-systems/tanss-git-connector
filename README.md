@@ -1,5 +1,8 @@
 # TANSS Git-Connector
 
+**Automatische Zeiterfassung aus Git-Commits in TANSS — Open Source, für Systemhäuser und
+IT-Dienstleister.**
+
 Ein Kommandozeilenwerkzeug, das jeden Git-Commit als Fernwartung **direkt in eure TANSS-Instanz**
 bucht. Ein `post-commit`-Hook meldet den Commit, das Werkzeug baut daraus eine Fernwartung mit
 Betreff, Zweig, Repository und Ticketbezug und schreibt sie in den Zeitstrahl des Technikers.
@@ -30,6 +33,7 @@ Läuft auf **Linux, Windows und macOS**.
 - [Stand der Umsetzung](#stand-der-umsetzung)
 - [Entwicklung](#entwicklung)
 - [Die TANSS-Anbindung im Einzelnen](#die-tanss-anbindung-im-einzelnen)
+- [Weitere TANSS-Werkzeuge](#weitere-tanss-werkzeuge)
 - [Lizenz](#lizenz)
 
 ---
@@ -788,6 +792,25 @@ Zwei Eigenheiten, die Zeit kosten, wenn man sie nicht kennt:
 `deviceId` und `companyId` werden bewusst **nicht** gesetzt: TANSS übersetzt eine Gerätekennung
 in eine Firma, und ein Commit gehört zu keinem Gerät des Kunden. Der Kundenbezug entsteht über
 das Ticket.
+
+---
+
+## Weitere TANSS-Werkzeuge
+
+Aus demselben Haus, mit demselben Zuschnitt: quelloffen, und jedes spricht unmittelbar mit der
+eigenen TANSS-Instanz — ohne fremden Zwischendienst.
+
+- **[TANSS Log-Watcher](https://github.com/pronet-systems/tanss-log-watcher)** —
+  erkennt Fernwartungssitzungen (AnyDesk, TeamViewer, Remotedesktop, ScreenConnect und weitere)
+  am Windows-Arbeitsplatz und bucht sie als Fernwartung.
+- **[TANSS Outlook Add-in](https://github.com/pronet-systems/tanss-outlook-addin)** —
+  legt E-Mails an Tickets ab, erzeugt Tickets aus E-Mails und pflegt zu einem Outlook-Termin
+  den TANSS-Einsatz.
+- **[TANSS Calendar Sync](https://github.com/pronet-systems/tanss-calendar-sync)** —
+  gleicht Termine zwischen TANSS und Microsoft 365 in beide Richtungen ab.
+
+Dahinter steht die [ProNet Systems GmbH](https://www.pronet-systems.de), ein IT-Systemhaus aus
+Arnsberg.
 
 ---
 
