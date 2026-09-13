@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>TanssGitConnector.Cli</RootNamespace>
+    <AssemblyName>tanss-git</AssemblyName>
+    <!-- Deutsche Benutzertexte mit Umlauten: die invariante Globalisierung waere hier falsch. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Der haeufigste Aufrufer ist ein post-commit-Haken. Was den Start beschleunigt, zahlt
+         sich bei jedem einzelnen Commit aus.
+         ReadyToRun steht BEWUSST NICHT hier, sondern im Veroeffentlichungslauf: Es verlangt
+         einen Wirt, der zur Zielplattform passt, und wuerde jedes "dotnet publish -r linux-x64"
+         von einem Windows-Rechner aus scheitern lassen. -->
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TanssGitConnector.Api\TanssGitConnector.Api.csproj" />
+    <ProjectReference Include="..\TanssGitConnector.Git\TanssGitConnector.Git.csproj" />
+    <ProjectReference Include="..\TanssGitConnector.Storage\TanssGitConnector.Storage.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Die Beispielkonfiguration liegt neben dem Programm. Ein Befehl, der ohne Konfiguration
+         anlaeuft, kann dann auf eine Datei verweisen, die wirklich da ist - ein Verweis auf eine
+         Vorlage im Quellbaum hilft am Rechner des Technikers niemandem. -->
+    <None Include="..\..\config.example.json" Link="config.example.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="TanssGitConnector.Cli.Tests" />
+  </ItemGroup>
+</Project>

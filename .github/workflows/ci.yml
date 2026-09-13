@@ -1,0 +1,144 @@
+# ---------------------------------------------------------------------------
+#  Der blockierende Lauf: jeder Push, jeder Pull Request.
+#
+#  Er laeuft auf allen drei Zielplattformen. Das ist hier kein Luxus: Der
+#  Haken ist eine Datei fuer eine Shell, der Tokenspeicher sieht auf jeder
+#  Plattform anders aus, und die Dateirechte gibt es nur unter Unix. Was
+#  davon bricht, bricht sonst erst beim Kunden.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Ein neuer Push auf denselben Zweig macht den vorigen Lauf gegenstandslos.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  # Englische Werkzeugmeldungen im Protokoll - anders als in der Anwendung, wo
+  # Deutsch Pflicht ist: Eine Compilermeldung sucht man im Netz, und dort steht
+  # sie englisch.
+  DOTNET_CLI_UI_LANGUAGE: 'en'
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    strategy:
+      # Ein roter Lauf auf einer Plattform soll die anderen nicht abbrechen:
+      # Bei einem plattformabhaengigen Fehler will man wissen, welche noch
+      # gruen sind.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v4
+
+      - name: .NET 10 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pakete wiederherstellen
+        run: dotnet restore TanssGitConnector.slnx
+
+      - name: Übersetzen
+        # -warnaserror doppelt zur Sicherheit: TreatWarningsAsErrors steht
+        # bereits in Directory.Build.props. Wer die Eigenschaft dort einmal
+        # abschaltet, um lokal weiterzukommen, soll es hier trotzdem merken.
+        run: dotnet build TanssGitConnector.slnx -c Release --no-restore -warnaserror
+
+      - name: Tests
+        run: >-
+          dotnet test TanssGitConnector.slnx -c Release --no-build
+          --logger "trx;LogFilePrefix=TanssGitConnector"
+          --results-directory artifacts/test-results
+
+      - name: Testergebnisse sichern
+        # Auch und gerade bei rotem Lauf: dann will man die .trx lesen.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testergebnisse-${{ matrix.os }}
+          path: artifacts/test-results/*.trx
+          if-no-files-found: error
+          retention-days: 14
+
+  hook:
+    name: Der Haken laeuft wirklich (ubuntu)
+    # Ein eigener Auftrag, weil er etwas anderes prueft als die Testsuite:
+    # nicht, ob der Hakentext stimmt, sondern ob Git ihn ausfuehrt und ob das
+    # Werkzeug dabei den richtigen Commit findet. Das faellt sonst erst beim
+    # Kunden auf - und dort lautlos.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v4
+
+      - name: .NET 10 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Veröffentlichen
+        run: >-
+          dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj
+          -c Release -o artifacts/cli
+
+      - name: Haken einrichten und einen Commit erzeugen
+        # Die Instanzadresse zeigt ins Leere: Gebucht werden SOLL hier nichts.
+        # Geprueft wird, dass der Commit in der Warteschlange landet - genau
+        # das ist die Zusage "ein Netzausfall kostet keine Arbeitszeit".
+        run: |
+          set -euo pipefail
+          export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
+          mkdir -p "$TANSS_GIT_CONNECTOR_HOME"
+          cat > "$TANSS_GIT_CONNECTOR_HOME/config.json" <<'JSON'
+          {
+            "version": 1,
+            "tanss": { "base_url": "https://tanss.invalid.example/backend", "employee_id": 42 },
+            "commits": { "remote_support_type_id": 1007, "duration_minutes": 15 },
+            "hook": { "timeout_seconds": 5 }
+          }
+          JSON
+
+          cli="$PWD/artifacts/cli/tanss-git"
+          repo="$RUNNER_TEMP/probe"
+          mkdir -p "$repo" && cd "$repo"
+          git init -q -b "feature/probe#5000" .
+          git config user.email ci@example.invalid
+          git config user.name  CI
+
+          "$cli" enable
+          test -x .git/hooks/post-commit
+
+          echo "hallo" > datei.txt
+          git add datei.txt
+          git commit -q -m "Erster Commit"
+
+          # Der Commit muss geschrieben sein - der Haken darf ihn nie kosten.
+          test "$(git rev-list --count HEAD)" = "1"
+
+          # Und er muss in der Warteschlange liegen, mit Ticket 5000 aus dem
+          # Zweignamen.
+          "$cli" queue | tee queue.txt
+          grep -q "wartend" queue.txt
+          grep -q "5000"    queue.txt
+
+          "$cli" disable
+          test ! -e .git/hooks/post-commit

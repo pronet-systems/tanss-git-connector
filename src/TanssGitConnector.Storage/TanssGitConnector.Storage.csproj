@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>TanssGitConnector.Storage</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- DPAPI liegt bei einem plattformneutralen Ziel nicht im Framework. Das Paket laesst sich
+         ueberall uebersetzen und wirft erst beim Aufruf ausserhalb von Windows; genau deshalb
+         steht der Aufruf hinter SupportedOSPlatform und einer Fallunterscheidung. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TanssGitConnector.Api\TanssGitConnector.Api.csproj" />
+    <!-- Die Ablage kennt die Git-Schicht, nicht umgekehrt: Die Konfiguration uebersetzt sich
+         selbst in die Einstellungen, aus denen eine Fernwartung entsteht, und diese Umsetzung
+         gehoert dorthin, wo sie ohne Netz und ohne Repository geprueft werden kann. -->
+    <ProjectReference Include="..\TanssGitConnector.Git\TanssGitConnector.Git.csproj" />
+  </ItemGroup>
+</Project>

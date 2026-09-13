@@ -1,0 +1,33 @@
+# Build
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+.vs/
+.idea/
+TestResults/
+
+# Konfiguration und Geheimnisse - gehoeren niemals ins Repository
+config.json
+credentials.dat
+credentials.dat.bak
+token
+*.pfx
+*.snk
+.local/
+
+# Laufzeitdaten
+queue.json
+log.jsonl
+*.log
+logs/
+
+# Betriebssystem
+Thumbs.db
+.DS_Store
+
+# Fremde Binaerdateien, die nur der Recherche dienen. Sie gehoeren niemandem
+# hier und haben in diesem Repository nichts verloren - weder rechtlich noch
+# fachlich: Was dieses Werkzeug tut, steht in seinem eigenen Quelltext.
+reference/

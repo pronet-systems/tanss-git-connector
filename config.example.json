@@ -1,0 +1,116 @@
+{
+  // Vorlage fuer die Konfiguration des TANSS Git-Connectors.
+  //
+  //   Windows:  %APPDATA%\ProNet Systems\TanssGitConnector\config.json
+  //   Unix:     ~/.config/tanss-git-connector/config.json
+  //
+  // Kommentare und nachgestellte Kommata sind beim LESEN erlaubt; beim naechsten Schreiben
+  // durch "tanss-git setup" sind sie fort. Unbekannte Felder werden dagegen ABGELEHNT statt
+  // uebergangen - eine vertippte Einstellung, die stillschweigend wirkungslos bleibt, ist
+  // gefaehrlicher als ein Ladefehler.
+  "version": 1,
+
+  "tanss": {
+    // Muss auf /backend enden. Zeigt die Adresse auf die Weboberflaeche, antwortet die
+    // PHP-Oberflaeche auf jede Anfrage mit HTTP 400 - auch ohne Token.
+    "base_url": "https://tanss.kunde.de/backend",
+
+    // Die eigene Mitarbeiter-ID. Sie traegt die gesamte Attribution der Buchungen;
+    // "tanss-git doctor" prueft sie gegen die Technikerliste der Instanz.
+    "employee_id": 42,
+
+    // Ab welcher Restlaufzeit das Token erneuert wird. Das Token selbst steht nicht in dieser
+    // Datei - es liegt geschuetzt im Zustandsverzeichnis.
+    "rotate_before_days": 60,
+
+    // Nur fuer Testinstanzen abschaltbar. doctor meldet false als WARNUNG.
+    "verify_tls": true,
+
+    // Knapp gehalten: Am anderen Ende wartet ein Techniker, dessen Commit gerade laeuft.
+    "timeout_seconds": 15
+  },
+
+  "commits": {
+    // Die externe Fernwartungs-Anbindung in TANSS. Muss mindestens 1000 sein und dort unter
+    // "Externe Fernwartungs-Anbindungen verwalten" angelegt sein; "tanss-git types" zeigt die
+    // vorhandenen. Eine eigene Anbindung "Entwicklung" oder "Git" trennt die Commits in jeder
+    // Auswertung von echten Fernwartungen.
+    "remote_support_type_id": 1007,
+
+    // "fixed"             - jeder Commit bucht duration_minutes. Ehrlich, weil es nichts ueber
+    //                       die Arbeitszeit behauptet, sondern eine Pauschale setzt.
+    // "since_last_commit" - die Zeit seit dem vorigen Commit, begrenzt durch minimum_minutes
+    //                       und maximum_minutes. Naeher an der Wirklichkeit, solange in einem
+    //                       Rutsch gearbeitet wird - und daneben, sobald jemand Pause macht.
+    //                       Auch das bleibt eine Schaetzung: Git weiss nicht, wann jemand
+    //                       angefangen hat, nur wann er zuletzt committet hat.
+    "duration_mode": "fixed",
+
+    "duration_minutes": 15,
+    "minimum_minutes": 5,
+
+    // Der wichtigste Wert dieses Abschnitts. Ohne ihn buchte der erste Commit nach dem
+    // Wochenende zweiundsiebzig Stunden.
+    "maximum_minutes": 120,
+
+    // Der Rumpf der Commit-Meldung ist die Begruendung der Arbeit und damit genau das, was in
+    // der Dokumentation beim Kunden fehlt, wenn er fehlt. Wer Ruempfe schreibt, in denen
+    // Interna stehen, schaltet ihn ab.
+    "include_body": true,
+    "include_branch": true,
+    "include_repository": true,
+
+    // Ein merge traegt selten eigene Arbeitszeit - die steckt in den Commits, die er
+    // zusammenfuehrt, und die sind meist schon gebucht.
+    "skip_merge_commits": true,
+
+    // AUS ist die Vorgabe. EIN ist die schaerfste Datenschutzeinstellung dieses Werkzeugs:
+    // Was nicht ausdruecklich einem Ticket zugeordnet ist - das eigene Werkzeug am Abend, das
+    // Uebungsprojekt, das private Repository -, verlaesst den Rechner nicht.
+    "only_with_ticket": false
+  },
+
+  "tickets": {
+    // Zweigname endet auf #<Nummer>, etwa "feature/rechnungslauf#5000".
+    "from_branch": true,
+
+    // Eine eigene Zeile "Ticket: 5000" in der Commit-Meldung. Sie schlaegt den Zweignamen:
+    // Der gilt fuer alle Commits des Zweigs, die Meldung fuer genau diesen einen.
+    "from_message": true,
+
+    // Kostet einen Aufruf je Commit und verhindert den teuersten Fehler: eine Fernwartung an
+    // einer Nummer, die kein Ticket ist - sie taucht dann in keiner Auswertung auf. Eine
+    // misslungene Pruefung haelt nichts auf.
+    "verify": true
+  },
+
+  "hook": {
+    // Aus ergibt einen Haken, der nur einreiht; "tanss-git queue --flush" bringt die Commits
+    // dann spaeter nach TANSS, etwa aus einem Zeitplan heraus.
+    "send_immediately": true,
+
+    // Die Zeit, die der Techniker nach jedem Commit wartet. Laeuft sie ab, bleibt der Commit
+    // in der Warteschlange und geht beim naechsten Mal mit - verloren ist nichts.
+    "timeout_seconds": 10,
+
+    // Eine Zeile je Commit ist der Beleg, dass gebucht wurde. Wer sie abschaltet, merkt einen
+    // stillen Ausfall erst am Monatsende.
+    "quiet": false
+  },
+
+  "proxy": {
+    "enabled": false,
+    "address": "",
+    "port": 8080,
+    "user": ""
+  },
+
+  "logging": {
+    "level": "info",
+
+    // Gilt fuer das Aenderungsprotokoll UND fuer die erledigten Warteschlangeneintraege.
+    // Wartende und aufgegebene Eintraege sind ausgenommen - sie sind ungebuchte Arbeitszeit,
+    // gleich wie alt sie werden.
+    "retention_days": 30
+  }
+}

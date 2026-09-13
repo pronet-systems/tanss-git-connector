@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TanssGitConnector.Api/TanssGitConnector.Api.csproj" />
+    <Project Path="src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj" />
+    <Project Path="src/TanssGitConnector.Git/TanssGitConnector.Git.csproj" />
+    <Project Path="src/TanssGitConnector.Storage/TanssGitConnector.Storage.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TanssGitConnector.Api.Tests/TanssGitConnector.Api.Tests.csproj" />
+    <Project Path="tests/TanssGitConnector.Cli.Tests/TanssGitConnector.Cli.Tests.csproj" />
+    <Project Path="tests/TanssGitConnector.Git.Tests/TanssGitConnector.Git.Tests.csproj" />
+    <Project Path="tests/TanssGitConnector.Storage.Tests/TanssGitConnector.Storage.Tests.csproj" />
+  </Folder>
+</Solution>

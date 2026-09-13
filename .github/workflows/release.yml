@@ -1,0 +1,110 @@
+# ---------------------------------------------------------------------------
+#  Veroeffentlichung: laeuft nur auf eine Marke v* und baut je Plattform eine
+#  einzelne Datei, die ihre Laufzeit mitbringt.
+#
+#  Gebaut wird JE PLATTFORM AUF IHRER EIGENEN MASCHINE. Das ist keine
+#  Bequemlichkeit: ReadyToRun uebersetzt beim Veroeffentlichen vor und
+#  verlangt dafuer einen passenden Wirt. Und der Start zaehlt hier - der
+#  haeufigste Aufrufer ist ein post-commit-Haken.
+# ---------------------------------------------------------------------------
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_CLI_UI_LANGUAGE: 'en'
+
+jobs:
+  build:
+    name: ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  rid: linux-x64 }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64 }
+          - { os: windows-latest, rid: win-x64 }
+          - { os: macos-latest,   rid: osx-arm64 }
+          - { os: macos-13,       rid: osx-x64 }
+
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v4
+
+      - name: .NET 10 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Veröffentlichen
+        run: >-
+          dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:PublishSingleFile=true -p:PublishReadyToRun=true
+          -p:DebugType=none
+          -o artifacts/${{ matrix.rid }}
+
+      - name: Abdruck bilden
+        # Die Dateien sind nicht signiert. Der SHA256 gehoert deshalb in die
+        # Release-Notiz: Er ist das Einzige, woran sich eine heruntergeladene
+        # Datei ueberhaupt pruefen laesst.
+        shell: bash
+        run: |
+          cd artifacts/${{ matrix.rid }}
+          rm -f *.pdb *.xml
+          sha256sum tanss-git* > SHA256SUMS.txt || shasum -a 256 tanss-git* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Ergebnis sichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: tanss-git-${{ matrix.rid }}
+          path: artifacts/${{ matrix.rid }}/*
+          if-no-files-found: error
+
+  release:
+    name: Veröffentlichung anlegen
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Ergebnisse holen
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Je Plattform ein Archiv
+        run: |
+          set -euo pipefail
+          cd artifacts
+          for dir in tanss-git-*; do
+            tar -czf "$dir.tar.gz" -C "$dir" .
+          done
+          ls -la
+
+      - name: Veröffentlichung
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.tar.gz
+          # Die Notiz wird von Hand nachgezogen: Was sich fuer den Benutzer
+          # geaendert hat, steht im CHANGELOG - und zwar in seiner Sprache,
+          # nicht in der des Compilers.
+          draft: true
+          body: |
+            Die Dateien sind **nicht signiert**. Die SHA256-Abdrücke liegen in jedem Archiv
+            unter `SHA256SUMS.txt`.
+
+            Installation, Einrichtung und Betrieb stehen im
+            [README](https://github.com/${{ github.repository }}#installation).
