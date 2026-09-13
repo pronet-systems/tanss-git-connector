@@ -7,8 +7,8 @@ namespace TanssGitConnector.Api;
 /// <remarks>
 /// <para><b>Der überwiegende Teil dieser Routen ist undokumentiert.</b> Die OpenAPI-Beschreibung
 /// von TANSS 10.10.0 kennt weder <c>/api/tanss.x/v1</c> noch <c>PUT /api/v1/remoteSupports</c>
-/// noch <c>/api/v1/jwts</c>. Was hier steht, stammt aus Messungen gegen eine Produktivinstanz
-/// der Fassung 10.10.0.</para>
+/// noch <c>/api/v1/jwts</c>. Was hier steht, stammt aus dem Studium der Schnittstelle und aus
+/// Messungen gegen eine Produktivinstanz der Fassung 10.10.0 — nicht aus einer Spezifikation.</para>
 ///
 /// <para>Daraus folgt eine Betriebsregel: bricht eine dieser Routen nach einem TANSS-Update weg,
 /// meldet das Werkzeug das ausdrücklich, statt still zu scheitern. Ein Commit, der lautlos nicht
@@ -20,9 +20,9 @@ public static class TanssRoutes
     /// Die Integrationsschnittstelle von TANSS. <c>loggedInUserId</c> ist hier überflüssig.
     /// </summary>
     /// <remarks>
-    /// Der Pfad heisst serverseitig so; mit einem bestimmten Produkt eines Drittanbieters hat
-    /// er nichts zu tun. Er ist schlicht die Route, über die TANSS Fernwartungen externer
-    /// Anbindungen entgegennimmt.
+    /// Der Pfad heißt serverseitig so — das Präfix stammt von TANSS und nicht von diesem
+    /// Werkzeug. Es ist die Route, über die TANSS Fernwartungen externer Anbindungen
+    /// entgegennimmt.
     /// </remarks>
     public const string IntegrationPrefix = "/api/tanss.x/v1";
 

@@ -8,7 +8,7 @@ namespace TanssGitConnector.Api.Http;
 /// Zeitüberschreitung heißt nicht, dass der Server nichts getan hat: die Anfrage kann
 /// angekommen, verarbeitet und nur die Antwort verloren gegangen sein. Und <b>TANSS
 /// dedupliziert nicht</b> — ein zweiter POST mit identischer <c>remoteMaintenanceId</c> erzeugte
-/// am 11.09.2026 nachweislich einen zweiten Datensatz (IDs 38584 und 38585). Eine
+/// nachweislich einen zweiten Datensatz mit eigener Kennung. Eine
 /// automatische Wiederholung würde also aus jedem Netzwackler eine doppelt abgerechnete
 /// Fernwartung machen. Wiederholt wird nach einem Schreibfehler nur von Hand und nur nach
 /// vorheriger Existenzprüfung.</para>

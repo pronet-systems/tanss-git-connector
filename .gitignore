@@ -27,7 +27,20 @@ logs/
 Thumbs.db
 .DS_Store
 
-# Fremde Binaerdateien, die nur der Recherche dienen. Sie gehoeren niemandem
-# hier und haben in diesem Repository nichts verloren - weder rechtlich noch
-# fachlich: Was dieses Werkzeug tut, steht in seinem eigenen Quelltext.
+# Recherchematerial. Gehoert nicht ins Repository.
 reference/
+
+# Geheimnisse, die in solchen Projekten erfahrungsgemaess auftauchen. Sie sollen gar
+# nicht erst versehentlich in die Historie geraten - dort bekommt man sie nie wieder
+# heraus, ohne die Historie neu zu schreiben.
+.env
+.env.*
+*.env
+secrets.json
+appsettings.*.local.json
+*.key
+*.pem
+*.p12
+
+# Hausinterne Mitarbeit-Notizen. Bleiben im Arbeitsverzeichnis, nicht im Repository.
+CONTRIBUTING.md

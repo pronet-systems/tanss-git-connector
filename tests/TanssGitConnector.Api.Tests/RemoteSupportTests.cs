@@ -206,7 +206,7 @@ public class RemoteSupportTests
     {
         RecordingHandler handler = new();
         handler.Answer(HttpStatusCode.OK,
-            """{"meta":{"linkedEntities":{"employees":{"42":{"name":"Sebastian Michel"}}}},"content":{"id":38584}}""");
+            """{"meta":{"linkedEntities":{"employees":{"42":{"name":"Erika Mustermann"}}}},"content":{"id":38584}}""");
 
         using TanssClient client = new(Options, new TestToken(), null, handler);
         RemoteSupportRepository repository = new(client, 42);

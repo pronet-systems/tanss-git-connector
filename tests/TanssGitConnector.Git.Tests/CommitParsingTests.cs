@@ -23,14 +23,14 @@ public class CommitParsingTests
     {
         CommitInfo commit = GitRepository.Parse(Line(
             "3f2a1bc9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3", "aaa111", "1757800000",
-            "Sebastian Michel", "s.michel@example.de", "Rechnungslauf korrigiert",
+            "Erika Mustermann", "e.mustermann@example.de", "Rechnungslauf korrigiert",
             "Rechnungslauf korrigiert\n\nDer Stundensatz kam aus dem falschen Vertrag."));
 
         Assert.Equal("3f2a1bc9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3", commit.Sha);
         Assert.Equal("3f2a1bc", commit.ShortSha);
         Assert.Equal("Rechnungslauf korrigiert", commit.Subject);
         Assert.Equal("Der Stundensatz kam aus dem falschen Vertrag.", commit.Body);
-        Assert.Equal("s.michel@example.de", commit.AuthorEmail);
+        Assert.Equal("e.mustermann@example.de", commit.AuthorEmail);
         Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1757800000), commit.CommittedAt);
     }
 

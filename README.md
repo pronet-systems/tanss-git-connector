@@ -9,6 +9,10 @@ Gegenstelle ist eure TANSS-Instanz.
 
 Läuft auf **Linux, Windows und macOS**.
 
+> Ein unabhängiges Werkzeug der ProNet Systems GmbH. TANSS ist ein Produkt der HUCK IT GmbH,
+> Roßdorf; dieses Projekt steht in keiner Verbindung zu ihr und wird von ihr weder unterstützt
+> noch geprüft. Näheres unter [Lizenz](#lizenz).
+
 > **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 178 Tests abgedeckt, die
 > Kommandozeile steht, der Haken läuft. **Gegen eine Produktivinstanz der Fassung 10.10.0 ist
 > am 13.09.2026 eine erste Fernwartung angelegt und zurückgelesen worden** (siehe
@@ -141,7 +145,11 @@ dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj \
   -p:PublishSingleFile=true -p:PublishReadyToRun=true \
   -o artifacts/osx-arm64
 
-install -Dm755 artifacts/osx-arm64/tanss-git ~/.local/bin/tanss-git
+# Kein "install -D" hier: Das ist eine Erweiterung der GNU-coreutils, und macOS
+# bringt das install aus BSD mit, das den Schalter nicht kennt.
+mkdir -p ~/.local/bin
+cp artifacts/osx-arm64/tanss-git ~/.local/bin/tanss-git
+chmod 755 ~/.local/bin/tanss-git
 ```
 
 Auf Intel-Macs `osx-x64`. Die Datei ist nicht signiert; macOS verlangt beim ersten Start eine
@@ -171,6 +179,19 @@ Danach eine neue Konsole öffnen, damit der Suchpfad greift.
 ```bash
 tanss-git --version
 ```
+
+### Die kleine Fassung, wenn .NET ohnehin da ist
+
+Die Befehle oben erzeugen eine einzelne Datei von rund 80 MB — sie bringt die gesamte
+.NET-Laufzeit mit und läuft auf einem Rechner ohne jede Installation. Wer das .NET-10-Laufzeit
+ohnehin ausgerollt hat, lässt `-r`, `--self-contained` und `PublishSingleFile` weg und bekommt
+knapp 1 MB in 17 Dateien:
+
+```bash
+dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj -c Release -o artifacts/portabel
+```
+
+Der Haken ruft in beiden Fällen denselben Pfad auf; für ihn macht es keinen Unterschied.
 
 ### Deinstallation
 
@@ -629,12 +650,12 @@ Nein. Es gibt genau eine Gegenstelle: eure TANSS-Instanz.
 Am 13.09.2026 gegen eine Instanz der Fassung 10.10.0:
 
 - `GET /api/tanss.x/v1/remoteSupports/systems` liefert die externen Anbindungen wie erwartet.
-- `POST /api/tanss.x/v1/remoteSupports` legt die Fernwartung an (Kennung 38625) und weist den
+- `POST /api/tanss.x/v1/remoteSupports` legt die Fernwartung an und weist den
   Mitarbeiter in `meta.linkedEntities.employees` aus — die Attribution ist damit **bestätigt**
   und nicht nur angenommen.
 - `PUT /api/v1/remoteSupports` mit dem vollen Commit-Hash als Textfilter findet **genau diesen
   einen** Datensatz wieder. Das ist die Existenzprüfung, an der die Dublettenvermeidung hängt.
-- Zurückgelesen: `typeId 1007`, `employeeId 1`, `ticketId 0`, `companyId 0`,
+- Zurückgelesen: die eingestellte Anbindung und der eingestellte Mitarbeiter, `ticketId 0`, `companyId 0`,
   `deviceName "tanss-git-connector"`, Zeitraum 15 Minuten, Kommentar 1051 Zeichen.
   `userId`/`userName` gehen als leere Zeichenketten hinaus und kommen leer zurück — ohne
   Nebenwirkung.
@@ -684,8 +705,10 @@ dem Netzzugriff ist ohne TANSS-Instanz und ohne Repository testbar.
 - **Erst Status prüfen, dann Rumpf.** Ein leerer Rumpf ist nur bei Erfolg eine leere Antwort —
   stünde die Leerprüfung vorher, wäre eine leere 403 ein leerer Erfolg.
 - **Erst einreihen, dann senden.** Nie umgekehrt.
-- **Vor jeder Wiederholung steht die Existenzprüfung.** Siehe
-  [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Vor jeder Wiederholung steht die Existenzprüfung** — und scheitert sie selbst, heißt das
+  *unbekannt* und nicht *nicht vorhanden*: Dann wird zurückgestellt, nicht gesendet. Siehe
+  [Wenn TANSS nicht erreichbar ist](#wenn-tanss-nicht-erreichbar-ist) und
+  `Cli/Booking/CommitUploader.cs`.
 - Zeiten ausschließlich über `TanssTime`. Es gibt bewusst keinen Millisekunden-Umrechner.
 
 ---
@@ -757,5 +780,13 @@ das Ticket.
 
 MIT — siehe [LICENSE](LICENSE). Copyright (c) 2026 ProNet Systems GmbH.
 
-TANSS ist eine Marke der TANSS GmbH. Dieses Projekt steht in keiner Verbindung zu diesem
-Unternehmen und wird von ihm weder unterstützt noch geprüft.
+**Herkunft der TANSS-Anbindung.** Der Baustein `src/TanssGitConnector.Api` — HTTP-Zugang,
+Umschlag, Token, Schwärzung — stammt überwiegend wörtlich aus dem Schwesterprojekt
+[TANSS Log-Watcher](https://github.com/pronet-systems/tanss-log-watcher) desselben Hauses, das
+unter derselben Lizenz und demselben Copyright steht. Das ist keine fremde Übernahme, aber es
+soll dastehen: Wer den Ursprung selbst entdeckt, liest es sonst anders.
+
+**TANSS ist ein Produkt der HUCK IT GmbH, Roßdorf** (Amtsgericht Darmstadt, HRB 95700). Dieses
+Projekt ist ein unabhängiges Werkzeug, steht in keiner Verbindung zur HUCK IT GmbH und wird von
+ihr weder unterstützt noch geprüft. Marken gehören ihren jeweiligen Inhabern; die Nennung dient
+allein dazu, zu sagen, wofür dieses Werkzeug gemacht ist.

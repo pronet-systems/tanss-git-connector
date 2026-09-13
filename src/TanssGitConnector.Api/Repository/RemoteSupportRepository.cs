@@ -208,10 +208,10 @@ public sealed class RemoteSupportRepository : IRemoteSupportRepository
 
     /// <summary>Liest die Liste aus dem <c>content</c> der Filterabfrage.</summary>
     /// <remarks>
-    /// <para><b>Genau eine Form wird angenommen: ein schlichtes JSON-Feld.</b> Am 11.09.2026
-    /// gemessen, zweifach — 30 121 Sätze über den Zeitraum 2020 bis 2027 und 2 Sätze beim
-    /// Textfilter auf eine Vorgangskennung. Der Umschlag trägt die Liste unmittelbar unter
-    /// <c>content</c>, ohne Zwischenobjekt.</para>
+    /// <para><b>Genau eine Form wird angenommen: ein schlichtes JSON-Feld.</b> Zweifach gemessen
+    /// gegen eine Instanz der Fassung 10.10.0 — einmal über einen Zeitraum von mehreren Jahren
+    /// mit fünfstelliger Satzzahl, einmal mit Textfilter auf eine einzelne Vorgangskennung. Der
+    /// Umschlag trägt die Liste unmittelbar unter <c>content</c>, ohne Zwischenobjekt.</para>
     /// <para>Jede andere Form ist deshalb ein Fehler und <b>keine leere Liste</b>. Der
     /// Unterschied ist der ganze Punkt dieser Methode: eine fälschlich leere Liste hieße
     /// „nicht vorhanden“, die Existenzprüfung gäbe grünes Licht, und weil TANSS nicht
