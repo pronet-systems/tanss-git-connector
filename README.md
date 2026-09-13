@@ -801,7 +801,7 @@ Umschlag, Token, Schwärzung — stammt überwiegend wörtlich aus dem Schwester
 unter derselben Lizenz und demselben Copyright steht. Das ist keine fremde Übernahme, aber es
 soll dastehen: Wer den Ursprung selbst entdeckt, liest es sonst anders.
 
-**TANSS ist ein Produkt der HUCK IT GmbH, Roßdorf** (Amtsgericht Darmstadt, HRB 95700). Dieses
+TANSS ist ein Produkt der HUCK IT GmbH, Roßdorf (Amtsgericht Darmstadt, HRB 95700). Dieses
 Projekt ist ein unabhängiges Werkzeug, steht in keiner Verbindung zur HUCK IT GmbH und wird von
 ihr weder unterstützt noch geprüft. Marken gehören ihren jeweiligen Inhabern; die Nennung dient
 allein dazu, zu sagen, wofür dieses Werkzeug gemacht ist.
