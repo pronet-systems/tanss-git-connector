@@ -41,7 +41,8 @@ public static class HelpText
         output.WriteLine("Buchen");
         output.WriteLine("  book <Commit> [--ticket N] einen Commit nachträglich buchen");
         output.WriteLine("       [--dry-run]           zeigt nur, was gebucht würde");
-        output.WriteLine("  hook                      der Aufruf aus dem Haken — endet immer mit 0");
+        output.WriteLine("  hook [--ticket N]         der Aufruf aus dem Haken — endet immer mit 0");
+        output.WriteLine("       [--dry-run]");
         output.WriteLine();
         output.WriteLine("Überall gültig");
         output.WriteLine("  --repository <Pfad>, -C   in diesem Repository arbeiten (Vorgabe: Arbeitsverzeichnis)");

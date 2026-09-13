@@ -51,6 +51,27 @@ public class CliArgsTests
     public void Hilfe_zu_einem_Befehl_wird_erkannt() =>
         Assert.True(CliArgs.Parse(["queue", "--help"]).HelpRequested);
 
+    /// <summary>
+    /// <c>--version</c> gilt überall — so, wie Hilfe und README es zusagen.
+    /// </summary>
+    /// <remarks>
+    /// Vorher kannte die Auswertung den Schalter nur als erstes Wort:
+    /// <c>tanss-git doctor --version</c> endete mit einem Aufruffehler (64). Für eine
+    /// Überwachung, die allein auf den Rückgabewert sieht, ist das der Unterschied zwischen
+    /// „gesund“ und „kaputt aufgerufen“.
+    /// </remarks>
+    [Theory]
+    [InlineData("doctor")]
+    [InlineData("queue")]
+    [InlineData("hook")]
+    public void Die_Fassung_laesst_sich_hinter_jedem_Befehl_abfragen(string command)
+    {
+        CliArgs parsed = CliArgs.Parse([command, "--version"]);
+
+        Assert.True(parsed.VersionRequested);
+        Assert.Null(parsed.Error);
+    }
+
     [Fact]
     public void Schalter_gelten_nur_bei_ihrem_Befehl()
     {

@@ -11,6 +11,49 @@ Die Fassungsnummer selbst steht an genau einer Stelle: im Element `Version` in
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt — eine Marke erzeugt jetzt wirklich eine Veröffentlichung
+
+`git push origin v0.2.0` baut die fünf Plattformen, packt je ein `.tar.gz` mit SHA256 und legt
+die Veröffentlichung an — **nicht mehr als Entwurf**: Eine Marke *ist* die Freigabe, und ein
+Entwurf, den jemand von Hand nachziehen muss, bleibt liegen, bis ihn jemand vermisst. Der Text
+kommt aus dem Abschnitt dieses CHANGELOGs, nicht aus einer Liste von Commit-Betreffzeilen.
+
+Davor läuft eine Prüfung: **Passt die Marke nicht zur Fassung in `Directory.Build.props`, bricht
+der Lauf ab**, bevor irgendetwas gebaut wird. Sonst entstünde eine Veröffentlichung, deren
+Dateien eine andere Nummer melden als ihr Name — und das fällt erst dem Benutzer auf.
+
+### Behoben — der CI-Lauf wäre beim ersten Push rot gewesen
+
+- **`tanss-git queue` endet mit 1, solange etwas wartet** — ein Befund, kein Fehler. Unter
+  `set -euo pipefail` hat genau das den Hakentest abgebrochen, und zwar zwingend: Der Testlauf
+  hat kein Token, also wartet der Commit. Der Rückgabewert wird jetzt bewusst ausgewertet.
+- **Der Hakentest konnte falsch grün werden.** Er suchte das Wort „wartend“ — das aber immer in
+  der Kopfzeile steht, auch bei „wartend 0“. Geprüft wird jetzt die Warteschlangendatei selbst,
+  samt Gegenprobe, dass nichts gebucht wurde.
+- **Der Veröffentlichungslauf hätte nie eine Veröffentlichung erzeugt:** Er verlangte den Läufer
+  `macos-13`, den GitHub abgeschaltet hat. Intel-Macs werden jetzt vom arm64-Läufer mitgebaut.
+- **Die Archive enthielten ein Programm ohne Ausführungsrecht.** `upload-artifact` verwirft
+  Dateirechte; gepackt wird deshalb im Bauauftrag, wo der Schalter noch steht.
+- Alle Actions auf aktuelle Fassungen gehoben (Node 20 wird aus den Läufern entfernt), und ein
+  Pull Request löst nicht mehr zwei vollständige Läufe aus.
+
+### Behoben — `--version` gilt jetzt wirklich überall
+
+README und eingebaute Hilfe führten den Schalter unter „Überall gültig“; die Auswertung kannte
+ihn aber nur als erstes Wort. `tanss-git doctor --version` endete mit einem Aufruffehler (64) —
+für eine Überwachung, die auf den Rückgabewert sieht, der Unterschied zwischen „gesund“ und
+„falsch aufgerufen“.
+
+### Geändert — die Anleitung ist nachgemessen statt behauptet
+
+Ein Fremder, der dem README folgt, kam an fünf Stellen woanders heraus als angekündigt: Der
+macOS-Weg endete in `command not found` (der PATH-Hinweis stand nur beim Linux-Abschnitt und
+zeigte auf `~/.bashrc`, das zsh nicht liest), die kleine Fassung ohne mitgelieferte Laufzeit
+besteht aus 17 Dateien und war mit der Installationszeile von oben nicht lauffähig,
+`config.example.json` blieb bei allen drei Wegen liegen — obwohl die Fehlermeldung des Werkzeugs
+genau darauf verweist —, der ARM-Hinweis änderte nur eine von drei Stellen, und der allererste
+Befehl war ein Platzhalter in spitzen Klammern.
+
 ### Behoben — zwei Wege, auf denen eine Dublette entstehen konnte
 
 Ein Prüflauf über den Schreibpfad hat vor der ersten Produktivbuchung zwei Fälle gefunden, in

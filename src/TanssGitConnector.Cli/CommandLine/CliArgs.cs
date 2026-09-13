@@ -157,6 +157,16 @@ public sealed record CliArgs
                 return result with { HelpRequested = true };
             }
 
+            // Wie die Hilfe: gilt hinter jedem Befehl, nicht nur allein. Frueher kannte die
+            // Auswertung "--version" nur als erstes Wort - "tanss-git doctor --version" endete
+            // mit einem Aufruffehler (64), obwohl README und eingebaute Hilfe den Schalter
+            // unter "Ueberall gueltig" fuehren. Wer Rueckgabewerte ueberwacht, bekam dort eine
+            // 64, wo er eine 0 erwartet.
+            if (string.Equals(token, "--version", StringComparison.Ordinal))
+            {
+                return result with { VersionRequested = true };
+            }
+
             switch (token)
             {
                 case "--dry-run" when command is CliCommand.Hook or CliCommand.Book:

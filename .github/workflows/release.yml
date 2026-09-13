@@ -1,11 +1,17 @@
 # ---------------------------------------------------------------------------
-#  Veroeffentlichung: laeuft nur auf eine Marke v* und baut je Plattform eine
-#  einzelne Datei, die ihre Laufzeit mitbringt.
+#  Veroeffentlichung. Ausgeloest von einer Marke v* - eine Marke ist die
+#  Freigabe, und sonst nichts.
 #
-#  Gebaut wird JE PLATTFORM AUF IHRER EIGENEN MASCHINE. Das ist keine
-#  Bequemlichkeit: ReadyToRun uebersetzt beim Veroeffentlichen vor und
-#  verlangt dafuer einen passenden Wirt. Und der Start zaehlt hier - der
-#  haeufigste Aufrufer ist ein post-commit-Haken.
+#    git tag -a v0.2.0 -m "Fassung 0.2.0" && git push origin v0.2.0
+#
+#  Daraus entsteht je Plattform eine einzelne Datei, die ihre Laufzeit
+#  mitbringt, ein SHA256 dazu - und eine Veroeffentlichung, deren Text aus
+#  dem CHANGELOG kommt.
+#
+#  Gepackt wird IM BAUAUFTRAG, nicht erst danach: actions/upload-artifact
+#  verwirft die Dateirechte (alles wird 644), und ein Programm ohne
+#  Ausfuehrungsrecht faellt nicht im Lauf auf, sondern beim ersten Benutzer.
+#  Ein tar.gz traegt den Schalter durch.
 # ---------------------------------------------------------------------------
 name: Release
 
@@ -13,6 +19,10 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Fassung ohne v, etwa 0.2.0 - nur fuer einen Probelauf ohne Marke'
+        required: false
 
 permissions:
   contents: write
@@ -23,8 +33,45 @@ env:
   DOTNET_CLI_UI_LANGUAGE: 'en'
 
 jobs:
+  # Erst pruefen, dann bauen: Eine Marke, die nicht zur Fassung in
+  # Directory.Build.props passt, erzeugte sonst eine Veroeffentlichung, deren
+  # Dateien eine andere Nummer melden als ihr Name. Das faellt erst dem
+  # Benutzer auf.
+  pruefen:
+    name: Marke und Fassung stimmen überein
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.fassung.outputs.version }}
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v7
+
+      - name: Vergleichen
+        id: fassung
+        run: |
+          set -euo pipefail
+          # Die eine Quelle der Wahrheit. Das Element steht bewusst in EINER
+          # Zeile - siehe den Kommentar in Directory.Build.props.
+          datei=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props | head -1)
+          marke="${GITHUB_REF_NAME#v}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            marke="${{ inputs.version }}"
+            marke="${marke:-$datei}"
+          fi
+
+          echo "Directory.Build.props: $datei"
+          echo "Marke:                $marke"
+
+          if [ "$datei" != "$marke" ]; then
+            echo "::error::Die Marke v$marke passt nicht zur Fassung $datei in Directory.Build.props. Entweder die Fassung anheben oder die Marke berichtigen."
+            exit 1
+          fi
+
+          echo "version=$datei" >> "$GITHUB_OUTPUT"
+
   build:
     name: ${{ matrix.rid }}
+    needs: pruefen
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
 
@@ -32,22 +79,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-latest,  rid: linux-x64 }
+          - { os: ubuntu-latest,    rid: linux-x64 }
           - { os: ubuntu-24.04-arm, rid: linux-arm64 }
-          - { os: windows-latest, rid: win-x64 }
-          - { os: macos-latest,   rid: osx-arm64 }
-          - { os: macos-13,       rid: osx-x64 }
+          - { os: windows-latest,   rid: win-x64 }
+          - { os: macos-latest,     rid: osx-arm64 }
+          # Intel-Macs werden vom arm64-Laeufer aus mitgebaut. Der frueher hier
+          # stehende Laeufer macos-13 ist von GitHub abgeschaltet worden - mit
+          # ihm scheiterte der ganze Auftrag und damit die Veroeffentlichung
+          # aller uebrigen Plattformen.
+          - { os: macos-latest,     rid: osx-x64 }
 
     steps:
       - name: Quelltext holen
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: .NET 10 einrichten
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       - name: Veröffentlichen
+        # ReadyToRun uebersetzt beim Veroeffentlichen vor; das zahlt sich bei
+        # einem post-commit-Haken bei jedem einzelnen Commit aus. Es laeuft
+        # auch ueber Kreuz - nachgemessen: osx-x64 mit ReadyToRun von einem
+        # Windows-Rechner aus uebersetzt anstandslos. Gebaut wird trotzdem je
+        # Plattform auf ihrer eigenen Maschine, weil dort auch die Tests
+        # laufen koennen.
         run: >-
           dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj
           -c Release -r ${{ matrix.rid }} --self-contained true
@@ -55,56 +112,106 @@ jobs:
           -p:DebugType=none
           -o artifacts/${{ matrix.rid }}
 
-      - name: Abdruck bilden
-        # Die Dateien sind nicht signiert. Der SHA256 gehoert deshalb in die
-        # Release-Notiz: Er ist das Einzige, woran sich eine heruntergeladene
-        # Datei ueberhaupt pruefen laesst.
+      - name: Abdruck bilden und packen
+        # Die Dateien sind nicht signiert. Der SHA256 gehoert deshalb ins
+        # Archiv: Er ist das Einzige, woran sich eine heruntergeladene Datei
+        # ueberhaupt pruefen laesst.
         shell: bash
         run: |
-          cd artifacts/${{ matrix.rid }}
-          rm -f *.pdb *.xml
-          sha256sum tanss-git* > SHA256SUMS.txt || shasum -a 256 tanss-git* > SHA256SUMS.txt
+          set -euo pipefail
+          cd "artifacts/${{ matrix.rid }}"
+          rm -f ./*.pdb ./*.xml
+          if command -v sha256sum > /dev/null; then
+            sha256sum tanss-git* > SHA256SUMS.txt
+          else
+            shasum -a 256 tanss-git* > SHA256SUMS.txt
+          fi
           cat SHA256SUMS.txt
+          tar -czf "../tanss-git-${{ needs.pruefen.outputs.version }}-${{ matrix.rid }}.tar.gz" .
 
       - name: Ergebnis sichern
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tanss-git-${{ matrix.rid }}
-          path: artifacts/${{ matrix.rid }}/*
+          path: artifacts/*.tar.gz
           if-no-files-found: error
 
   release:
     name: Veröffentlichung anlegen
-    needs: build
+    needs: [pruefen, build]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
+      - name: Quelltext holen
+        # Wegen des CHANGELOG: Der Text der Veroeffentlichung soll der sein,
+        # den jemand fuer Menschen geschrieben hat - nicht eine Liste von
+        # Commit-Betreffzeilen.
+        uses: actions/checkout@v7
+
       - name: Ergebnisse holen
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
+          merge-multiple: true
 
-      - name: Je Plattform ein Archiv
+      - name: Abschnitt aus dem CHANGELOG schneiden
+        id: notiz
         run: |
           set -euo pipefail
-          cd artifacts
-          for dir in tanss-git-*; do
-            tar -czf "$dir.tar.gz" -C "$dir" .
-          done
-          ls -la
+          version="${{ needs.pruefen.outputs.version }}"
+          # Vom eigenen Abschnitt bis zur naechsten Ueberschrift, ohne beide.
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { drin = 1; next }
+            drin && /^## \[/       { exit }
+            drin                   { print }
+          ' CHANGELOG.md | sed '/^---$/d' > notiz.md
+
+          if [ ! -s notiz.md ]; then
+            echo "::warning::Im CHANGELOG steht kein Abschnitt [$version]. Die Veroeffentlichung bekommt nur den Installationstext."
+            printf 'Zu dieser Fassung steht im CHANGELOG nichts.\n' > notiz.md
+          fi
+
+          cat >> notiz.md <<'ENDE'
+
+          ---
+
+          ## Installation
+
+          Archiv der eigenen Plattform herunterladen und auspacken:
+
+          ```bash
+          tar -xzf tanss-git-*-linux-x64.tar.gz
+          sha256sum -c SHA256SUMS.txt       # macOS: shasum -a 256 -c SHA256SUMS.txt
+          mkdir -p ~/.local/bin
+          cp tanss-git ~/.local/bin/tanss-git
+          chmod 755 ~/.local/bin/tanss-git
+          tanss-git --version
+          ```
+
+          Unter Windows genügt `tanss-git.exe` an einem Ort der Wahl; ein Ausführungsrecht ist
+          dort nicht zu setzen.
+
+          Danach `tanss-git setup`, dann `tanss-git enable --global`.
+
+          Die Dateien sind **nicht signiert**; die SHA256-Abdrücke liegen in jedem Archiv unter
+          `SHA256SUMS.txt`. Einrichtung, Betrieb und Konfiguration stehen im README.
+          ENDE
+
+          echo "--- Text der Veroeffentlichung ---"
+          cat notiz.md
 
       - name: Veröffentlichung
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
+          name: Fassung ${{ needs.pruefen.outputs.version }}
+          body_path: notiz.md
           files: artifacts/*.tar.gz
-          # Die Notiz wird von Hand nachgezogen: Was sich fuer den Benutzer
-          # geaendert hat, steht im CHANGELOG - und zwar in seiner Sprache,
-          # nicht in der des Compilers.
-          draft: true
-          body: |
-            Die Dateien sind **nicht signiert**. Die SHA256-Abdrücke liegen in jedem Archiv
-            unter `SHA256SUMS.txt`.
-
-            Installation, Einrichtung und Betrieb stehen im
-            [README](https://github.com/${{ github.repository }}#installation).
+          # Kein Entwurf: Eine Marke IST die Freigabe. Ein Entwurf, den jemand
+          # von Hand nachtraeglich veroeffentlichen muss, bleibt genau so lange
+          # liegen, bis ihn jemand vermisst.
+          draft: false
+          # Eine Fassung mit Bindestrich (0.2.0-beta.1) gilt als Vorabfassung
+          # und wird auf der Startseite nicht als "neueste" gefuehrt.
+          prerelease: ${{ contains(needs.pruefen.outputs.version, '-') }}
+          fail_on_unmatched_files: true

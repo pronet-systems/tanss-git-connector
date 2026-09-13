@@ -8,9 +8,10 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- Der haeufigste Aufrufer ist ein post-commit-Haken. Was den Start beschleunigt, zahlt
          sich bei jedem einzelnen Commit aus.
-         ReadyToRun steht BEWUSST NICHT hier, sondern im Veroeffentlichungslauf: Es verlangt
-         einen Wirt, der zur Zielplattform passt, und wuerde jedes "dotnet publish -r linux-x64"
-         von einem Windows-Rechner aus scheitern lassen. -->
+         ReadyToRun steht bewusst NICHT hier, sondern im Veroeffentlichungslauf und in der
+         Anleitung: Es verlaengert jeden gewoehnlichen "dotnet build" und jeden Testlauf, ohne
+         dabei etwas beizutragen. Ueber Kreuz laeuft es anstandslos - nachgemessen: osx-x64 mit
+         ReadyToRun von einem Windows-Rechner aus. -->
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
   <ItemGroup>

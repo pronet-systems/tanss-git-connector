@@ -4,7 +4,7 @@
 #  Er laeuft auf allen drei Zielplattformen. Das ist hier kein Luxus: Der
 #  Haken ist eine Datei fuer eine Shell, der Tokenspeicher sieht auf jeder
 #  Plattform anders aus, und die Dateirechte gibt es nur unter Unix. Was
-#  davon bricht, bricht sonst erst beim Kunden.
+#  davon bricht, bricht sonst erst beim Benutzer.
 # ---------------------------------------------------------------------------
 name: CI
 
@@ -14,8 +14,14 @@ on:
   pull_request:
 
 # Ein neuer Push auf denselben Zweig macht den vorigen Lauf gegenstandslos.
+#
+# Die Gruppe nimmt bei einem Pull Request dessen NUMMER statt github.ref: Beim
+# Push heisst der Bezug refs/heads/<zweig>, beim Pull Request refs/pull/<n>/merge
+# - zwei verschiedene Gruppen, und derselbe Stand liefe zweimal vollstaendig
+# durch. Mit der Nummer loeschen Push und Pull Request desselben Zweigs einander
+# aus.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -45,10 +51,10 @@ jobs:
 
     steps:
       - name: Quelltext holen
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: .NET 10 einrichten
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -70,7 +76,7 @@ jobs:
       - name: Testergebnisse sichern
         # Auch und gerade bei rotem Lauf: dann will man die .trx lesen.
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: testergebnisse-${{ matrix.os }}
           path: artifacts/test-results/*.trx
@@ -80,18 +86,19 @@ jobs:
   hook:
     name: Der Haken laeuft wirklich (ubuntu)
     # Ein eigener Auftrag, weil er etwas anderes prueft als die Testsuite:
-    # nicht, ob der Hakentext stimmt, sondern ob Git ihn ausfuehrt und ob das
-    # Werkzeug dabei den richtigen Commit findet. Das faellt sonst erst beim
-    # Kunden auf - und dort lautlos.
+    # nicht, ob der Hakentext stimmt, sondern ob Git ihn ausfuehrt, ob das
+    # Werkzeug dabei den richtigen Commit findet und ob der Commit die
+    # Warteschlange erreicht, obwohl die Instanz nicht antwortet. Das faellt
+    # sonst erst beim Benutzer auf - und dort lautlos.
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Quelltext holen
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: .NET 10 einrichten
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -102,8 +109,8 @@ jobs:
 
       - name: Haken einrichten und einen Commit erzeugen
         # Die Instanzadresse zeigt ins Leere: Gebucht werden SOLL hier nichts.
-        # Geprueft wird, dass der Commit in der Warteschlange landet - genau
-        # das ist die Zusage "ein Netzausfall kostet keine Arbeitszeit".
+        # Geprueft wird, dass der Commit trotzdem in der Warteschlange landet -
+        # genau das ist die Zusage "ein Netzausfall kostet keine Arbeitszeit".
         run: |
           set -euo pipefail
           export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
@@ -134,11 +141,46 @@ jobs:
           # Der Commit muss geschrieben sein - der Haken darf ihn nie kosten.
           test "$(git rev-list --count HEAD)" = "1"
 
-          # Und er muss in der Warteschlange liegen, mit Ticket 5000 aus dem
-          # Zweignamen.
-          "$cli" queue | tee queue.txt
-          grep -q "wartend" queue.txt
-          grep -q "5000"    queue.txt
+      - name: Der Commit liegt in der Warteschlange
+        # EIGENER SCHRITT, und zwar ohne "set -e" ueber dem Aufruf: "queue"
+        # liefert absichtlich 1, solange etwas wartet (ExitCode.Warning) - das
+        # ist ein Befund und kein Fehler. Unter "set -euo pipefail" hat genau
+        # das den Lauf frueher abgebrochen.
+        run: |
+          set -uo pipefail
+          export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
+          cli="$PWD/artifacts/cli/tanss-git"
+          cd "$RUNNER_TEMP/probe"
 
-          "$cli" disable
+          "$cli" queue > queue.txt 2>&1
+          rc=$?
+          cat queue.txt
+          # 0 = leer, 1 = es wartet etwas. Ab 2 ist es ein Fehler.
+          test "$rc" -le 1
+
+          # Geprueft wird die Warteschlangendatei selbst und nicht die Anzeige:
+          # Das Wort "wartend" steht auch in der Kopfzeile "wartend 0, …" und
+          # traefe deshalb immer.
+          set -e
+          queue="$TANSS_GIT_CONNECTOR_HOME/queue.json"
+          jq -e '.entries | length == 1' "$queue" > /dev/null
+          jq -e '.entries[0].state == "pending"' "$queue" > /dev/null
+          jq -e '.entries[0].payload.ticket_id == 5000' "$queue" > /dev/null
+          # Gegenprobe: Es wurde NICHTS gebucht - sonst traege der Eintrag die
+          # Kennung, die TANSS vergeben haette.
+          jq -e '.entries[0].remote_support_id == null' "$queue" > /dev/null
+          echo "Der Commit wartet, mit Ticket aus dem Zweignamen, und nichts ist gebucht."
+
+      - name: Haken wieder entfernen
+        run: |
+          set -uo pipefail
+          export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
+          cd "$RUNNER_TEMP/probe"
+
+          # Auch "disable" hat einen Befundwert: 1 heisst "dort liegt ein
+          # fremder Haken, ich fasse ihn nicht an". Hier muss es 0 sein - alles
+          # andere waere ein Fehler im Werkzeug.
+          "$GITHUB_WORKSPACE/artifacts/cli/tanss-git" disable
+          rc=$?
+          test "$rc" -eq 0
           test ! -e .git/hooks/post-commit

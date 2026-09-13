@@ -1,7 +1,7 @@
 # TANSS Git-Connector
 
 Ein Kommandozeilenwerkzeug, das jeden Git-Commit als Fernwartung **direkt in eure TANSS-Instanz**
-bucht. Ein `post-commit`-Haken meldet den Commit, das Werkzeug baut daraus eine Fernwartung mit
+bucht. Ein `post-commit`-Hook meldet den Commit, das Werkzeug baut daraus eine Fernwartung mit
 Betreff, Zweig, Repository und Ticketbezug und schreibt sie in den Zeitstrahl des Technikers.
 
 Kein Zwischendienst, kein Herstellerkonto, keine Daten außerhalb eures Hauses. Die einzige
@@ -13,8 +13,8 @@ Läuft auf **Linux, Windows und macOS**.
 > Roßdorf; dieses Projekt steht in keiner Verbindung zu ihr und wird von ihr weder unterstützt
 > noch geprüft. Näheres unter [Lizenz](#lizenz).
 
-> **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 178 Tests abgedeckt, die
-> Kommandozeile steht, der Haken läuft. **Gegen eine Produktivinstanz der Fassung 10.10.0 ist
+> **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 181 Tests abgedeckt, die
+> Kommandozeile steht, der Hook läuft. **Gegen eine Produktivinstanz der Fassung 10.10.0 ist
 > am 13.09.2026 eine erste Fernwartung angelegt und zurückgelesen worden** (siehe
 > [Stand der Umsetzung](#stand-der-umsetzung)). Was noch fehlt, steht ebenda; für den
 > Regelbetrieb fehlt vor allem ein Probelauf über mehrere Arbeitstage.
@@ -28,7 +28,7 @@ Läuft auf **Linux, Windows und macOS**.
 - [Voraussetzungen](#voraussetzungen)
 - [Installation](#installation)
 - [Einrichtung](#einrichtung)
-- [Den Haken einrichten](#den-haken-einrichten)
+- [Den Hook einrichten](#den-hook-einrichten)
 - [Ticketbezug](#ticketbezug)
 - [Konfiguration](#konfiguration)
 - [Kommandos](#kommandos)
@@ -46,7 +46,7 @@ Läuft auf **Linux, Windows und macOS**.
 
 ## Was das Werkzeug tut
 
-- **Jeden Commit buchen.** Ein `post-commit`-Haken ruft `tanss-git hook` auf. Daraus entsteht
+- **Jeden Commit buchen.** Ein `post-commit`-Hook ruft `tanss-git hook` auf. Daraus entsteht
   eine Fernwartung auf eine externe Anbindung eurer Wahl, mit dem Commit-Betreff als
   Leistungsbeschreibung.
 - **Den Ticketbezug herstellen.** Endet der Zweigname auf `#5000` oder trägt die Commit-Meldung
@@ -57,7 +57,7 @@ Läuft auf **Linux, Windows und macOS**.
   Arbeitszeit, sondern verschiebt sie.
 - **Keine Dubletten erzeugen.** Der Commit-Hash ist die Vorgangskennung. Vor jeder Wiederholung
   mit ungeklärtem Ausgang wird in TANSS nachgesehen, ob die Fernwartung schon steht.
-- **Den Commit nie scheitern lassen.** Der Haken endet immer mit 0. Wenn er läuft, ist der
+- **Den Commit nie scheitern lassen.** Der Hook endet immer mit 0. Wenn er läuft, ist der
   Commit bereits geschrieben.
 - **Sich selbst am Leben halten.** Das Zugangstoken erneuert sich vor seinem Ablauf und wird
   gegengetestet, bevor es übernommen wird.
@@ -69,7 +69,7 @@ Läuft auf **Linux, Windows und macOS**.
   einzeln abschalten.
 - **Kein Zwischendienst.** Es gibt genau eine Gegenstelle: eure TANSS-Instanz. Keine Telemetrie,
   keine Absturzberichte, keine Aktualisierungsabfrage bei einem Dritten.
-- **Nichts heimlich.** Der Haken ist eine lesbare Datei in `.git/hooks/`, jede Buchung schreibt
+- **Nichts heimlich.** Der Hook ist eine lesbare Datei in `.git/hooks/`, jede Buchung schreibt
   eine Zeile ins Protokoll, und `tanss-git status` zeigt jederzeit, was eingerichtet ist.
 - **Keine erhöhten Rechte.** Alles läuft als angemeldeter Benutzer, alles liegt im
   Benutzerprofil.
@@ -85,7 +85,7 @@ Läuft auf **Linux, Windows und macOS**.
 | Mitarbeiterrecht | *„Darf API-Tokens für ext. Anbindungen erzeugen“* (Recht 480) |
 | Arbeitsplatz | Linux, Windows 10/11 oder macOS; x64 oder arm64 |
 | Git | 2.x, im Suchpfad erreichbar |
-| .NET | keins — die veröffentlichte Fassung bringt ihre Laufzeit mit |
+| .NET | keins — die veröffentlichte Fassung bringt ihre Laufzeit mit. Nur die [kleine Fassung](#die-kleine-fassung-wenn-net-ohnehin-da-ist) setzt die .NET-10-Laufzeit voraus |
 
 ### Die externe Fernwartungs-Anbindung
 
@@ -113,23 +113,30 @@ Es gibt noch keine fertigen Pakete; gebaut wird aus dem Quelltext. Nötig ist da
 dem, der es benutzt: Das Ergebnis ist eine einzelne Datei, die ihre Laufzeit mitbringt.
 
 ```bash
-git clone <dieses-repository> tanss-git-connector
+git clone https://github.com/pronet-systems/tanss-git-connector.git
 cd tanss-git-connector
 ```
 
 ### Linux
 
+Auf einem ARM-Rechner — Raspberry Pi, Graviton-Instanz — statt `linux-x64` das Ziel
+`linux-arm64` setzen. Deshalb steht es hier in einer Variablen: Es kommt an drei Stellen vor,
+und wer nur die erste ändert, installiert am Ende die Datei der falschen Architektur.
+
 ```bash
+rid=linux-x64      # auf ARM: linux-arm64
+
 dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj \
-  -c Release -r linux-x64 --self-contained true \
+  -c Release -r "$rid" --self-contained true \
   -p:PublishSingleFile=true -p:PublishReadyToRun=true \
-  -o artifacts/linux-x64
+  -o "artifacts/$rid"
 
-install -Dm755 artifacts/linux-x64/tanss-git ~/.local/bin/tanss-git
+install -Dm755 "artifacts/$rid/tanss-git" ~/.local/bin/tanss-git
+
+# Die Vorlage gehoert daneben: Laeuft ein Befehl ohne Konfiguration an, verweist
+# das Werkzeug auf "config.example.json neben dem Programm".
+install -Dm644 "artifacts/$rid/config.example.json" ~/.local/bin/config.example.json
 ```
-
-Auf einem ARM-Rechner (etwa einem Raspberry Pi oder einer Graviton-Instanz) statt `linux-x64`
-das Ziel `linux-arm64` angeben.
 
 Liegt `~/.local/bin` noch nicht im Suchpfad, gehört es hinein:
 
@@ -150,6 +157,11 @@ dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj \
 mkdir -p ~/.local/bin
 cp artifacts/osx-arm64/tanss-git ~/.local/bin/tanss-git
 chmod 755 ~/.local/bin/tanss-git
+cp artifacts/osx-arm64/config.example.json ~/.local/bin/
+
+# macOS kennt ~/.local/bin nicht von Haus aus, und die Vorgabeshell ist zsh -
+# eine ~/.bashrc wird dort nicht gelesen.
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
 ```
 
 Auf Intel-Macs `osx-x64`. Die Datei ist nicht signiert; macOS verlangt beim ersten Start eine
@@ -166,13 +178,15 @@ dotnet publish src\TanssGitConnector.Cli\TanssGitConnector.Cli.csproj `
 $ziel = "$env:LOCALAPPDATA\Programs\TanssGitConnector"
 New-Item -ItemType Directory -Force $ziel | Out-Null
 Copy-Item artifacts\win-x64\tanss-git.exe $ziel -Force
+Copy-Item artifacts\win-x64\config.example.json $ziel -Force
 
-# Nur fuer den Aufruf von Hand noetig; der Haken merkt sich den vollen Pfad selbst.
+# Nur fuer den Aufruf von Hand noetig; der Hook merkt sich den vollen Pfad selbst.
 [Environment]::SetEnvironmentVariable("PATH",
   [Environment]::GetEnvironmentVariable("PATH", "User") + ";$ziel", "User")
 ```
 
-Danach eine neue Konsole öffnen, damit der Suchpfad greift.
+Danach eine neue Konsole öffnen, damit der Suchpfad greift. Auf ARM-Geräten — etwa einem
+Surface mit Snapdragon — statt `win-x64` das Ziel `win-arm64` angeben, an allen drei Stellen.
 
 ### Prüfen
 
@@ -182,16 +196,27 @@ tanss-git --version
 
 ### Die kleine Fassung, wenn .NET ohnehin da ist
 
-Die Befehle oben erzeugen eine einzelne Datei von rund 80 MB — sie bringt die gesamte
-.NET-Laufzeit mit und läuft auf einem Rechner ohne jede Installation. Wer das .NET-10-Laufzeit
-ohnehin ausgerollt hat, lässt `-r`, `--self-contained` und `PublishSingleFile` weg und bekommt
-knapp 1 MB in 17 Dateien:
+Die Befehle oben erzeugen eine einzelne Datei von rund 85 bis 95 MB, je nach Plattform — sie
+bringt die gesamte .NET-Laufzeit mit und läuft auf einem Rechner ohne jede Installation. Wer die
+.NET-10-**Laufzeit** ohnehin ausgerollt hat, lässt `-r`, `--self-contained` und
+`PublishSingleFile` weg und bekommt knapp 1 MB:
 
 ```bash
 dotnet publish src/TanssGitConnector.Cli/TanssGitConnector.Cli.csproj -c Release -o artifacts/portabel
 ```
 
-Der Haken ruft in beiden Fällen denselben Pfad auf; für ihn macht es keinen Unterschied.
+**Das sind dann 17 Dateien, und sie gehören zusammen.** Anders als oben genügt es hier *nicht*,
+`tanss-git` allein zu kopieren — das Programm sucht seine `tanss-git.dll` daneben und bricht
+sonst mit einer englischen Meldung ab. Der ganze Ordner will installiert werden:
+
+```bash
+mkdir -p ~/.local/lib/tanss-git
+cp -r artifacts/portabel/. ~/.local/lib/tanss-git/
+ln -sf ~/.local/lib/tanss-git/tanss-git ~/.local/bin/tanss-git
+```
+
+Der Hook merkt sich den Pfad, unter dem er eingerichtet wurde; für ihn macht die Wahl keinen
+Unterschied.
 
 ### Deinstallation
 
@@ -236,7 +261,7 @@ tanss-git doctor
 
 ---
 
-## Den Haken einrichten
+## Den Hook einrichten
 
 Zwei Wege, und sie schließen sich nicht aus.
 
@@ -261,12 +286,12 @@ tanss-git enable
 Alternativ genügt in einem bestehenden Repository auch `git init` — das ändert nichts am
 Projekt und trägt nur die Vorlage nach.
 
-### Wenn dort schon ein Haken liegt
+### Wenn dort schon ein Hook liegt
 
-Ein fremder `post-commit`-Haken wird **nicht** angetastet: Er kann ein Prüflauf, eine Signatur
+Ein fremder `post-commit`-Hook wird **nicht** angetastet: Er kann ein Prüflauf, eine Signatur
 oder eine Benachrichtigung sein. Zwei Möglichkeiten:
 
-1. Den Aufruf in den vorhandenen Haken aufnehmen:
+1. Den Aufruf in den vorhandenen Hook aufnehmen:
    ```sh
    tanss-git hook --repository "$PWD" || true
    ```
@@ -389,7 +414,7 @@ dieses Werkzeug.
 | `timeout_seconds` | `10` | **so lange wartet der Techniker nach jedem Commit** |
 | `quiet` | `false` | nichts ausgeben, wenn alles gutgegangen ist |
 
-`send_immediately: false` ergibt einen Haken, der nur einreiht; `tanss-git queue --flush` bringt
+`send_immediately: false` ergibt einen Hook, der nur einreiht; `tanss-git queue --flush` bringt
 die Commits dann später nach TANSS — der richtige Weg auf einem Rechner ohne ständige Verbindung
 zur Instanz.
 
@@ -411,7 +436,7 @@ Sie sind ungebuchte Arbeitszeit.
 | Token | `~/.local/state/tanss-git-connector/credentials.dat` | `%LOCALAPPDATA%\ProNet Systems\TanssGitConnector\credentials.dat` |
 | Warteschlange, Protokoll, Git-Vorlage | `~/.local/state/tanss-git-connector/` | `%LOCALAPPDATA%\ProNet Systems\TanssGitConnector\` |
 
-Unter Unix gelten `XDG_CONFIG_HOME` und `XDG_STATE_HOME`, wenn sie gesetzt sind. Die
+Unter Unix gelten `XDG_CONFIG_HOME` und `XDG_STATE_HOME`, wenn sie gesetzt sind **und einen absoluten Pfad tragen** — ein relativer Wert wird nach der XDG-Festlegung übergangen. Die
 Umgebungsvariable `TANSS_GIT_CONNECTOR_HOME` lenkt **beides** auf ein eigenes Verzeichnis um —
 gedacht für Probeläufe, die die Einrichtung des Technikers nicht anfassen sollen.
 
@@ -426,13 +451,13 @@ gebunden.
 | Befehl | Zweck |
 |---|---|
 | `tanss-git setup` | Einrichtungsassistent |
-| `tanss-git doctor` | prüft Erreichbarkeit, Token, Rechte, Anbindung, Git, Haken, Warteschlange |
+| `tanss-git doctor` | prüft Erreichbarkeit, Token, Rechte, Anbindung, Git, Hook, Warteschlange |
 | `tanss-git status` | zeigt ohne Netzzugriff, was eingerichtet ist |
-| `tanss-git enable [--global] [--force]` | Haken einrichten |
-| `tanss-git disable [--global]` | Haken entfernen |
+| `tanss-git enable [--global] [--force]` | Hook einrichten |
+| `tanss-git disable [--global]` | Hook entfernen |
 | `tanss-git types` | die externen Fernwartungs-Anbindungen der Instanz |
 | `tanss-git book <Commit> [--ticket N] [--dry-run]` | einen Commit nachträglich buchen |
-| `tanss-git hook` | der Aufruf aus dem Haken — endet immer mit 0 |
+| `tanss-git hook [--ticket N] [--dry-run]` | der Aufruf aus dem Hook — endet immer mit 0 |
 | `tanss-git queue [--flush]` | Warteschlange anzeigen; `--flush` sendet die fälligen Einträge |
 | `tanss-git log [--lines N]` | das Änderungsprotokoll, jüngste Zeile zuerst |
 | `tanss-git token status\|rotate` | Restlaufzeit anzeigen, Token erneuern |
@@ -491,14 +516,14 @@ im zweiten liegt sie in der Warteschlange und geht beim nächsten Commit oder be
 Das ist der Fall, für den die Warteschlange gebaut ist.
 
 ```
-Commit geschrieben  → Haken laeuft
+Commit geschrieben  → Hook laeuft
                     → Commit in die lokale Warteschlange, ZUERST, vor jedem Netzkontakt
 TANSS erreichbar?   → nein: Eintrag bleibt liegen, Rueckstau waechst exponentiell,
                             Deckel eine Stunde
                     → ja:  senden, bei Erfolg abschliessen
 ```
 
-Es gibt **kein Verlustfenster**: Der Haken sendet nie, bevor er eingereiht hat. Bricht der
+Es gibt **kein Verlustfenster**: Der Hook sendet nie, bevor er eingereiht hat. Bricht der
 Vorgang mitten im Senden ab, bleibt der Eintrag als *wartend* stehen — mit dem Kennzeichen
 **Ausgang unbekannt**, weil niemand die Antwort gesehen hat.
 
@@ -565,7 +590,7 @@ Betreffzeile mit.
 
 Was das Werkzeug dagegen vorsieht:
 
-- **Nichts läuft heimlich.** Der Haken ist eine lesbare Textdatei im Repository des Technikers,
+- **Nichts läuft heimlich.** Der Hook ist eine lesbare Textdatei im Repository des Technikers,
   die er selbst einrichtet und jederzeit mit einem Befehl wieder entfernt.
 - **Jedes übertragene Feld ist einzeln abschaltbar** — Rumpf, Zweig, Repository.
 - **`only_with_ticket`** hält alles zurück, was nicht ausdrücklich Kundenarbeit ist.
@@ -580,8 +605,8 @@ Was das Werkzeug dagegen vorsieht:
 
 Drei Ursachen, in dieser Reihenfolge zu prüfen:
 
-1. In diesem Repository ist kein Haken eingerichtet. `tanss-git status` sagt es.
-2. Dort liegt ein fremder `post-commit`-Haken; er wird nicht angetastet.
+1. In diesem Repository ist kein Hook eingerichtet. `tanss-git status` sagt es.
+2. Dort liegt ein fremder `post-commit`-Hook; er wird nicht angetastet.
 3. Die Vorlage (`--global`) wirkt nur auf Repositorys, die **danach** angelegt oder geklont
    wurden.
 
@@ -637,12 +662,12 @@ Nein. Es gibt genau eine Gegenstelle: eure TANSS-Instanz.
 | TANSS-Anbindung (Client, Token, Fernwartungen, Ticketprüfung) | fertig, getestet |
 | Commit lesen, Ticketnummer bestimmen, Fernwartung bauen | fertig, getestet |
 | Warteschlange, Existenzprüfung, Rückstau, Protokoll | fertig, getestet |
-| Haken einrichten (Repository und Vorlage), fremde Haken erkennen | fertig, getestet |
+| Hook einrichten (Repository und Vorlage), fremde Hooks erkennen | fertig, getestet |
 | Kommandozeile (`setup`, `doctor`, `status`, `enable`, `disable`, `book`, `hook`, `queue`, `token`, `types`, `log`) | fertig |
 | Prüfung gegen eine echte TANSS-Instanz | **erste Buchung angelegt und zurückgelesen** (siehe unten) |
 | Einrichtungsassistent gegen eine echte Instanz erprobt | offen |
 | Probebetrieb über mehrere Arbeitstage | offen |
-| Fertige Pakete und Veröffentlichungslauf | offen |
+| Fertige Pakete | offen — der Veröffentlichungslauf steht (`.github/workflows/release.yml`), es ist nur noch keine Marke gesetzt |
 | Signierte Binärdateien | offen |
 
 ### Was gegen eine Produktivinstanz gemessen ist
@@ -688,7 +713,7 @@ Windows-Abhängigkeit: DPAPI liegt hinter einer Plattformweiche, alles andere is
 
 ```
 src/TanssGitConnector.Api        HTTP, Token, Repositories — kennt weder Git noch Dateipfade
-src/TanssGitConnector.Git        git aufrufen, Commit lesen, Fernwartung bauen, Haken schreiben
+src/TanssGitConnector.Git        git aufrufen, Commit lesen, Fernwartung bauen, Hook schreiben
 src/TanssGitConnector.Storage    Konfiguration, Tokenspeicher, Warteschlange, Protokoll
 src/TanssGitConnector.Cli        Kommandozeile
 tests/                           je Modul ein Testprojekt
