@@ -169,9 +169,16 @@ jobs:
           # Das Wort "wartend" steht auch in der Kopfzeile "wartend 0, …" und
           # traefe deshalb immer.
           queue="$TANSS_GIT_CONNECTOR_HOME/queue.json"
+          cat "$queue"
           jq -e '.entries | length == 1' "$queue" > /dev/null
           jq -e '.entries[0].state == "pending"' "$queue" > /dev/null
-          jq -e '.entries[0].payload.ticket_id == 5000' "$queue" > /dev/null
+          # ACHTUNG, zwei Schreibweisen in EINER Datei: Der Rahmen der
+          # Warteschlange laeuft ueber die Namensregel snake_case
+          # (remote_support_id, outcome_unknown), die Nutzlast dagegen traegt
+          # die Feldnamen der TANSS-Schnittstelle aus ihren
+          # JsonPropertyName-Attributen - also ticketId und nicht ticket_id.
+          # Genau daran ist diese Pruefung beim ersten Lauf gescheitert.
+          jq -e '.entries[0].payload.ticketId == 5000' "$queue" > /dev/null
           # Gegenprobe: Es wurde NICHTS gebucht - sonst traege der Eintrag die
           # Kennung, die TANSS vergeben haette.
           jq -e '.entries[0].remote_support_id == null' "$queue" > /dev/null
