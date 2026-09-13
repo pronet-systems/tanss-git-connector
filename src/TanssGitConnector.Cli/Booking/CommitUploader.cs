@@ -156,6 +156,24 @@ internal sealed class CommitUploader
 
             return UploadOutcome.Sent;
         }
+        catch (OperationCanceledException)
+        {
+            // Strg+C oder eine Zeitgrenze MITTEN IM SENDEN. Der Abbruch sagt nichts darueber,
+            // ob die Anfrage den Server erreicht hat - sie kann angekommen, verarbeitet und nur
+            // die Antwort nie gelesen worden sein. Ohne diesen Zweig bliebe der Eintrag als
+            // scheinbar geklaerter Erstversuch stehen, und die naechste Wiederholung ginge ohne
+            // Existenzpruefung hinaus.
+            _outbox.Fail(entry.RemoteMaintenanceId,
+                "Abgebrochen, waehrend die Anfrage unterwegs war.", outcomeUnknown: true);
+
+            _log.Warning("queue.cancelled",
+                "Der Sendevorgang wurde abgebrochen. Ob TANSS die Fernwartung angelegt hat, ist "
+                + "offen; vor der Wiederholung wird geprüft.",
+                entry.RemoteMaintenanceId, entry.Repository, entry.Payload.TicketId);
+
+            // Weiterreichen: Ein verschluckter Abbruch ist schlimmer als ein durchgereichter.
+            throw;
+        }
         catch (TanssUnreachableException exception)
         {
             // Der gefaehrliche Fall: Die Anfrage kann angekommen sein, nur die Antwort fehlt.
@@ -166,9 +184,21 @@ internal sealed class CommitUploader
         }
         catch (TanssException exception)
         {
-            // TANSS hat geantwortet und abgelehnt. Der Ausgang ist damit geklaert: nichts
-            // angelegt.
-            Fail(entry, exception, outcomeUnknown: false, "queue.rejected");
+            // NICHT jede Antwort klaert den Ausgang. Die Unterscheidung haengt am Status:
+            //
+            //   4xx  - TANSS hat die Anfrage geprueft und abgelehnt. Nichts angelegt, geklaert.
+            //   5xx  - Der Server ist auf halbem Weg gestolpert. Ob er die Fernwartung vorher
+            //          geschrieben hat, weiss von hier aus niemand.
+            //   kein Status - die Anfrage war erfolgreich (2xx), und erst danach ging etwas
+            //          schief: kein Datensatz im Rumpf, kein JSON, ein unerwartetes Modell. Das
+            //          ist der sicherste Hinweis darauf, dass TANSS sehr wohl etwas angelegt hat.
+            //
+            // Frueher galt hier jede Ausnahme ausser der Unerreichbarkeit als "geklaert: nichts
+            // angelegt". Damit waere ausgerechnet der Fall, in dem der Datensatz am
+            // wahrscheinlichsten schon steht, ohne Existenzpruefung wiederholt worden.
+            bool unknown = exception.Status is null or (>= 500 and < 600);
+
+            Fail(entry, exception, unknown, unknown ? "queue.unclear" : "queue.rejected");
             return UploadOutcome.Failed;
         }
         catch (StorageException exception)

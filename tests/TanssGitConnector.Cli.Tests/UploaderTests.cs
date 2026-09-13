@@ -72,6 +72,93 @@ public class UploaderTests
     }
 
     /// <summary>
+    /// Eine 5xx klärt den Ausgang <b>nicht</b>.
+    /// </summary>
+    /// <remarks>
+    /// Der Server ist auf halbem Weg gestolpert. Ob er die Fernwartung vorher geschrieben hat,
+    /// weiß von hier aus niemand — und genau deshalb darf sie nicht ohne Existenzprüfung
+    /// wiederholt werden. Vorher galt jede Antwort ausser der Unerreichbarkeit als „geklärt:
+    /// nichts angelegt“.
+    /// </remarks>
+    [Theory]
+    [InlineData(500)]
+    [InlineData(502)]
+    [InlineData(503)]
+    public async Task Eine_Serverstoerung_laesst_den_Ausgang_offen(int status)
+    {
+        using Harness harness = new();
+        harness.Enqueue();
+        harness.Repository.FailWith = new TanssException("Serverfehler.", status);
+
+        _ = await harness.Uploader.FlushAsync();
+
+        Assert.True(harness.Outbox.All()[0].OutcomeUnknown);
+    }
+
+    /// <summary>
+    /// Ein Fehler <b>nach</b> einer erfolgreichen Antwort lässt den Ausgang erst recht offen.
+    /// </summary>
+    /// <remarks>
+    /// „TANSS hat quittiert, aber keinen Datensatz genannt“ und „der Rumpf ist kein JSON“ tragen
+    /// keinen Status — sie entstehen erst, nachdem die Anfrage mit 2xx beantwortet wurde. Das
+    /// ist der stärkste Hinweis darauf, dass der Datensatz sehr wohl angelegt wurde.
+    /// </remarks>
+    [Fact]
+    public async Task Ein_Fehler_nach_erfolgreicher_Antwort_laesst_den_Ausgang_offen()
+    {
+        using Harness harness = new();
+        harness.Enqueue();
+        harness.Repository.FailWith = new TanssException(
+            "TANSS hat das Anlegen quittiert, aber keinen Datensatz zurückgegeben.");
+
+        _ = await harness.Uploader.FlushAsync();
+
+        Assert.True(harness.Outbox.All()[0].OutcomeUnknown);
+    }
+
+    [Theory]
+    [InlineData(400)]
+    [InlineData(403)]
+    [InlineData(404)]
+    public async Task Eine_geprüfte_Ablehnung_klaert_den_Ausgang(int status)
+    {
+        using Harness harness = new();
+        harness.Enqueue();
+        harness.Repository.FailWith = new TanssException("Abgewiesen.", status);
+
+        _ = await harness.Uploader.FlushAsync();
+
+        // TANSS hat die Anfrage angesehen und Nein gesagt: Es liegt nichts, und der naechste
+        // Versuch darf ohne Existenzpruefung hinausgehen.
+        Assert.False(harness.Outbox.All()[0].OutcomeUnknown);
+    }
+
+    /// <summary>
+    /// Ein Abbruch mitten im Senden hinterlässt einen Vermerk.
+    /// </summary>
+    /// <remarks>
+    /// Strg+C sagt nichts darüber, ob die Anfrage den Server erreicht hat. Ohne diesen Vermerk
+    /// bliebe der Eintrag als scheinbar geklärter Erstversuch stehen — und die nächste
+    /// Wiederholung ginge ohne Existenzprüfung hinaus.
+    /// </remarks>
+    [Fact]
+    public async Task Ein_Abbruch_mitten_im_Senden_hinterlaesst_einen_Vermerk()
+    {
+        using Harness harness = new();
+        harness.Enqueue();
+        harness.Repository.FailWith = new OperationCanceledException();
+
+        QueuedCommit entry = harness.Outbox.All()[0];
+
+        // Der Abbruch wird weitergereicht - ein verschluckter waere schlimmer.
+        _ = await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => harness.Uploader.SendAsync(entry));
+
+        Assert.True(harness.Outbox.All()[0].OutcomeUnknown);
+        Assert.Equal(1, harness.Outbox.All()[0].Attempts);
+    }
+
+    /// <summary>
     /// Vor der Wiederholung eines ungeklärten Eintrags steht die Existenzprüfung.
     /// </summary>
     [Fact]

@@ -11,6 +11,41 @@ Die Fassungsnummer selbst steht an genau einer Stelle: im Element `Version` in
 
 ## [Unveröffentlicht]
 
+### Behoben — zwei Wege, auf denen eine Dublette entstehen konnte
+
+Ein Prüflauf über den Schreibpfad hat vor der ersten Produktivbuchung zwei Fälle gefunden, in
+denen der Ausgang eines Sendeversuchs fälschlich als **geklärt** galt. Beide hätten dazu
+geführt, dass die Wiederholung ohne Existenzprüfung hinausgeht — und TANSS dedupliziert nicht.
+
+- **Eine 5xx heißt nicht „nichts angelegt“.** Bisher galt jede Antwort außer der
+  Unerreichbarkeit als geklärt. Ein Server, der auf halbem Weg stolpert, kann die Fernwartung
+  aber vorher geschrieben haben. Der Ausgang hängt jetzt am Status: 4xx ist geklärt, 5xx und
+  **jeder Fehler ohne Status** sind es nicht.
+- **Ein Fehler nach einer erfolgreichen Antwort ist der stärkste Hinweis auf einen angelegten
+  Datensatz** — „quittiert, aber keinen Datensatz genannt“ und „der Rumpf ist kein JSON“
+  entstehen erst nach einer 2xx. Sie gelten jetzt als ungeklärt.
+- **Ein Abbruch mitten im Senden hinterlässt einen Vermerk.** Strg+C sagt nichts darüber, ob die
+  Anfrage angekommen ist; bisher blieb der Eintrag als scheinbar geklärter Erstversuch stehen.
+  Der Abbruch wird weiterhin durchgereicht.
+- Die Zeitgrenze des Hakens zählt einen Versuch nicht mehr doppelt.
+
+Acht neue Tests decken die Fälle ab (178 insgesamt).
+
+### Berichtigt — eine Anmerkung, die den Doktor verharmlost hat
+
+An `CanRotateAsync` stand, TANSS protokolliere den Rechte-Trockentest nicht und gebe ein
+unbrauchbares Token zurück. Beides ist falsch und widersprach der nachgemessenen Anmerkung
+sechzig Zeilen darüber: Es entsteht ein echtes Token, und die Instanz führt es in ihrem
+Tokenprotokoll. **`tanss-git doctor` ist damit nicht rein lesend** — das steht jetzt im
+Quelltext und im README.
+
+### Gemessen — die erste Buchung in einer Produktivinstanz
+
+Gegen eine Instanz der Fassung 10.10.0 angelegt und zurückgelesen; die Einzelheiten stehen im
+[README unter „Was gegen eine Produktivinstanz gemessen ist“](README.md#was-gegen-eine-produktivinstanz-gemessen-ist).
+Neu belegt: die Attribution wird serverseitig bestätigt, die Existenzprüfung findet den
+Datensatz über den Commit-Hash wieder, und `userId`/`userName` dürfen leer hinausgehen.
+
 ---
 
 ## [0.1.0] — 2026-09-13

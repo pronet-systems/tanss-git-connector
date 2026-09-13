@@ -153,9 +153,20 @@ public static class TanssAuth
     /// Darf dieser Mitarbeiter überhaupt Token prägen?
     /// </summary>
     /// <remarks>
-    /// Fragt mit <c>isForTesting=true</c> und 60 Sekunden Laufzeit. TANSS protokolliert diesen
-    /// Versuch nicht und gibt ein unbrauchbares Token zurück — er kostet also nichts und eignet
-    /// sich für die Einrichtung. Wirft nicht: die Antwort auf „darf ich?“ ist ja oder nein.
+    /// <para>Fragt mit <c>isForTesting=true</c> und 60 Sekunden Laufzeit. Wirft nicht: die
+    /// Antwort auf „darf ich?“ ist ja oder nein — oder „liess sich nicht klären“.</para>
+    ///
+    /// <para><b>ACHTUNG: Dieser Aufruf ist nicht folgenlos.</b> Hier stand früher, TANSS
+    /// protokolliere den Versuch nicht und gebe ein unbrauchbares Token zurück. Beides ist
+    /// falsch und widerspricht der nachgemessenen Anmerkung an <see cref="MintAsync"/> sechzig
+    /// Zeilen darüber: Es entsteht ein <b>echtes</b> Token, TANSS führt es in seinem
+    /// Tokenprotokoll, und <c>info</c> wird gespeichert. Harmlos ist es allein dadurch, dass
+    /// <see cref="MintAsync"/> in diesem Fall 60 Sekunden Laufzeit anfragt.</para>
+    ///
+    /// <para>Daraus folgt für den Betrieb: <c>tanss-git doctor</c> ist <b>nicht</b> rein lesend.
+    /// Jeder Lauf hinterlässt eine Zeile im Tokenprotokoll der Instanz, die sich nicht
+    /// zurücknehmen lässt. Wer gegen eine Produktivinstanz nur nachsehen will, nimmt
+    /// <c>status</c>, <c>types</c> und <c>queue</c>.</para>
     /// </remarks>
     public static async Task<bool?> CanRotateAsync(ITanssClient client, CancellationToken ct = default)
     {

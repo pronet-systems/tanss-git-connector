@@ -9,12 +9,11 @@ Gegenstelle ist eure TANSS-Instanz.
 
 Läuft auf **Linux, Windows und macOS**.
 
-> **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 170 Tests abgedeckt, die
-> Kommandozeile steht, der Haken läuft. Was fehlt, steht unter
-> [Stand der Umsetzung](#stand-der-umsetzung). Für einen Produktiveinsatz ist es noch zu früh:
-> Die TANSS-Anbindung ist aus einem Schwesterprojekt übernommen und dort gegen eine
-> Produktivinstanz gemessen, in **diesem** Projekt aber noch nicht gegen eine echte Instanz
-> erprobt.
+> **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 178 Tests abgedeckt, die
+> Kommandozeile steht, der Haken läuft. **Gegen eine Produktivinstanz der Fassung 10.10.0 ist
+> am 13.09.2026 eine erste Fernwartung angelegt und zurückgelesen worden** (siehe
+> [Stand der Umsetzung](#stand-der-umsetzung)). Was noch fehlt, steht ebenda; für den
+> Regelbetrieb fehlt vor allem ein Probelauf über mehrere Arbeitstage.
 
 ---
 
@@ -619,12 +618,38 @@ Nein. Es gibt genau eine Gegenstelle: eure TANSS-Instanz.
 | Warteschlange, Existenzprüfung, Rückstau, Protokoll | fertig, getestet |
 | Haken einrichten (Repository und Vorlage), fremde Haken erkennen | fertig, getestet |
 | Kommandozeile (`setup`, `doctor`, `status`, `enable`, `disable`, `book`, `hook`, `queue`, `token`, `types`, `log`) | fertig |
-| Prüfung gegen eine echte TANSS-Instanz | **offen** |
+| Prüfung gegen eine echte TANSS-Instanz | **erste Buchung angelegt und zurückgelesen** (siehe unten) |
+| Einrichtungsassistent gegen eine echte Instanz erprobt | offen |
+| Probebetrieb über mehrere Arbeitstage | offen |
 | Fertige Pakete und Veröffentlichungslauf | offen |
 | Signierte Binärdateien | offen |
 
-**Vor einem Produktiveinsatz** stehen aus: ein Lauf gegen eine echte Instanz, ein Probebetrieb
-über mehrere Arbeitstage und die Einbindung der Mitbestimmung.
+### Was gegen eine Produktivinstanz gemessen ist
+
+Am 13.09.2026 gegen eine Instanz der Fassung 10.10.0:
+
+- `GET /api/tanss.x/v1/remoteSupports/systems` liefert die externen Anbindungen wie erwartet.
+- `POST /api/tanss.x/v1/remoteSupports` legt die Fernwartung an (Kennung 38625) und weist den
+  Mitarbeiter in `meta.linkedEntities.employees` aus — die Attribution ist damit **bestätigt**
+  und nicht nur angenommen.
+- `PUT /api/v1/remoteSupports` mit dem vollen Commit-Hash als Textfilter findet **genau diesen
+  einen** Datensatz wieder. Das ist die Existenzprüfung, an der die Dublettenvermeidung hängt.
+- Zurückgelesen: `typeId 1007`, `employeeId 1`, `ticketId 0`, `companyId 0`,
+  `deviceName "tanss-git-connector"`, Zeitraum 15 Minuten, Kommentar 1051 Zeichen.
+  `userId`/`userName` gehen als leere Zeichenketten hinaus und kommen leer zurück — ohne
+  Nebenwirkung.
+- Ein zweiter `book`-Aufruf mit demselben Hash sendet nichts.
+
+**Noch nicht gemessen:** der Ticketbezug (`GET /api/v1/tickets/{id}`) gegen eine echte Instanz,
+die Tokenerneuerung und der Einrichtungsassistent.
+
+**Vor einem Produktiveinsatz** stehen aus: ein Probebetrieb über mehrere Arbeitstage und die
+Einbindung der Mitbestimmung.
+
+> **`doctor` ist nicht rein lesend.** Er prüft das Recht auf Tokenerneuerung, indem er ein
+> Token mit 60 Sekunden Laufzeit prägen lässt — TANSS führt das in seinem Tokenprotokoll, und
+> das lässt sich nicht zurücknehmen. Wer gegen eine Produktivinstanz nur nachsehen will, nimmt
+> `status`, `types` und `queue`.
 
 ---
 

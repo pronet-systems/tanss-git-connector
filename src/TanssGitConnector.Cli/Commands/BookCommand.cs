@@ -183,11 +183,9 @@ internal static class BookCommand
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            // Die eigene Zeitgrenze. Der Eintrag steht in der Warteschlange - und weil der
-            // Ausgang ungeklaert ist, steht vor der Wiederholung die Existenzpruefung.
-            composition.Outbox.Fail(entry.RemoteMaintenanceId,
-                "Zeitgrenze des Hakens abgelaufen.", outcomeUnknown: true);
-
+            // Die eigene Zeitgrenze. Den Eintrag hat CommitUploader.SendAsync bereits als
+            // ungeklaert vermerkt - hier wird deshalb NICHT ein zweites Mal Fail aufgerufen:
+            // Das zaehlte den Versuch doppelt und verdoppelte den Rueckstau.
             composition.Log.Warning("hook.timeout",
                 "Die Zeitgrenze des Hakens ist abgelaufen, bevor TANSS geantwortet hat. Der "
                 + "Commit bleibt in der Warteschlange; vor der Wiederholung wird geprüft, ob er "
@@ -195,7 +193,8 @@ internal static class BookCommand
 
             if (!quiet)
             {
-                error.WriteLine(line + " · eingereiht (TANSS hat nicht rechtzeitig geantwortet)");
+                error.WriteLine(line + " · eingereiht — ob TANSS die Buchung angelegt hat, ist "
+                    + "offen; es wird geprüft, bevor erneut gesendet wird");
             }
 
             return ExitCode.Warning;
