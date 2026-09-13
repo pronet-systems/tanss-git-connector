@@ -81,7 +81,7 @@ public sealed record CliArgs
     /// <summary>Das Repository, in dem gearbeitet wird; ohne Angabe das Arbeitsverzeichnis.</summary>
     public string? Repository { get; init; }
 
-    /// <summary>Die Fassung, die gebucht werden soll — bei <c>book</c>.</summary>
+    /// <summary>Die Version, die gebucht werden soll — bei <c>book</c>.</summary>
     public string? Revision { get; init; }
 
     /// <summary>Eine von Hand angegebene Ticketnummer. Sie schlägt Zweigname und Meldung.</summary>
@@ -108,7 +108,7 @@ public sealed record CliArgs
     /// <summary>Hilfe wurde angefordert.</summary>
     public bool HelpRequested { get; init; }
 
-    /// <summary>Die Fassung wurde angefordert.</summary>
+    /// <summary>Die Version wurde angefordert.</summary>
     public bool VersionRequested { get; init; }
 
     /// <summary>
@@ -254,7 +254,7 @@ public sealed record CliArgs
                 };
             }
 
-            // Ein freistehendes Wort: je nach Befehl der Unterbefehl oder die Fassung.
+            // Ein freistehendes Wort: je nach Befehl der Unterbefehl oder die Version.
             if (command == CliCommand.Token && result.SubCommand is null)
             {
                 if (token is not ("status" or "rotate"))

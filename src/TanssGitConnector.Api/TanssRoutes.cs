@@ -8,7 +8,7 @@ namespace TanssGitConnector.Api;
 /// <para><b>Der überwiegende Teil dieser Routen ist undokumentiert.</b> Die OpenAPI-Beschreibung
 /// von TANSS 10.10.0 kennt weder <c>/api/tanss.x/v1</c> noch <c>PUT /api/v1/remoteSupports</c>
 /// noch <c>/api/v1/jwts</c>. Was hier steht, stammt aus dem Studium der Schnittstelle und aus
-/// Messungen gegen eine Produktivinstanz der Fassung 10.10.0 — nicht aus einer Spezifikation.</para>
+/// Messungen gegen eine Produktivinstanz der Version 10.10.0 — nicht aus einer Spezifikation.</para>
 ///
 /// <para>Daraus folgt eine Betriebsregel: bricht eine dieser Routen nach einem TANSS-Update weg,
 /// meldet das Werkzeug das ausdrücklich, statt still zu scheitern. Ein Commit, der lautlos nicht

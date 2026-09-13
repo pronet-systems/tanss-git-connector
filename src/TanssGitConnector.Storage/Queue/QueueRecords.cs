@@ -105,7 +105,7 @@ public sealed record QueuedCommit
 /// </remarks>
 public sealed record QueueFile
 {
-    /// <summary>Höchster Stand, den diese Programmfassung liest.</summary>
+    /// <summary>Höchster Stand, den diese Programmversion liest.</summary>
     public const int CurrentVersion = 1;
 
     /// <summary>Stand des Dateiaufbaus.</summary>

@@ -75,7 +75,7 @@ Läuft auf **Linux, Windows und macOS**.
 | Mitarbeiterrecht | *„Darf API-Tokens für ext. Anbindungen erzeugen“* (Recht 480) |
 | Arbeitsplatz | Linux, Windows 10/11 oder macOS; x64 oder arm64 |
 | Git | 2.x, im Suchpfad erreichbar |
-| .NET | keins — die veröffentlichte Fassung bringt ihre Laufzeit mit. Nur die [kleine Fassung](#die-kleine-fassung-wenn-net-ohnehin-da-ist) setzt die .NET-10-Laufzeit voraus |
+| .NET | keins — die veröffentlichte Version bringt ihre Laufzeit mit. Nur die [kleine Version](#die-kleine-version-wenn-net-ohnehin-da-ist) setzt die .NET-10-Laufzeit voraus |
 
 ### Die externe Fernwartungs-Anbindung
 
@@ -184,7 +184,7 @@ Surface mit Snapdragon — statt `win-x64` das Ziel `win-arm64` angeben, an alle
 tanss-git --version
 ```
 
-### Die kleine Fassung, wenn .NET ohnehin da ist
+### Die kleine Version, wenn .NET ohnehin da ist
 
 Die Befehle oben erzeugen eine einzelne Datei von rund 85 bis 95 MB, je nach Plattform — sie
 bringt die gesamte .NET-Laufzeit mit und läuft auf einem Rechner ohne jede Installation. Wer die
@@ -662,7 +662,7 @@ Nein. Es gibt genau eine Gegenstelle: eure TANSS-Instanz.
 
 ### Was gegen eine Produktivinstanz gemessen ist
 
-Am 13.09.2026 gegen eine Instanz der Fassung 10.10.0:
+Am 13.09.2026 gegen eine Instanz der Version 10.10.0:
 
 - `GET /api/tanss.x/v1/remoteSupports/systems` liefert die externen Anbindungen wie erwartet.
 - `POST /api/tanss.x/v1/remoteSupports` legt die Fernwartung an und weist den

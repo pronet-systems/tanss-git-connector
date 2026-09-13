@@ -16,8 +16,8 @@ namespace TanssGitConnector.Storage;
 /// XDG, weil dies ein Kommandozeilenwerkzeug ist und weil ein Techniker, der zwischen macOS und
 /// Linux wechselt, seine Datei am selben Platz finden soll.</para>
 ///
-/// <para><b>Bewusst kein Verzeichnis je Programmfassung.</b> Ein eigenes Verzeichnis je Stand
-/// hinterlässt nach vier Fassungen vier verwaiste Ordner, von denen keiner erkennbar der
+/// <para><b>Bewusst kein Verzeichnis je Programmversion.</b> Ein eigenes Verzeichnis je Stand
+/// hinterlässt nach vier Versionen vier verwaiste Ordner, von denen keiner erkennbar der
 /// gültige ist.</para>
 /// </remarks>
 public static class StoragePaths

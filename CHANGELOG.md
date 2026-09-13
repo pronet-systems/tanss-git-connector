@@ -1,10 +1,10 @@
 # Änderungsprotokoll
 
 Alle nennenswerten Änderungen an diesem Projekt stehen hier. Das Format folgt
-[Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Fassungsnummern folgen
+[Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionsnummern folgen
 [Semantic Versioning](https://semver.org/lang/de/).
 
-Die Fassungsnummer selbst steht an genau einer Stelle: im Element `Version` in
+Die Versionsnummer selbst steht an genau einer Stelle: im Element `Version` in
 `Directory.Build.props`.
 
 ---
@@ -22,7 +22,7 @@ die Veröffentlichung an — **nicht mehr als Entwurf**: Eine Marke *ist* die Fr
 Entwurf, den jemand von Hand nachziehen muss, bleibt liegen, bis ihn jemand vermisst. Der Text
 kommt aus dem Abschnitt dieses CHANGELOGs, nicht aus einer Liste von Commit-Betreffzeilen.
 
-Davor läuft eine Prüfung: **Passt die Marke nicht zur Fassung in `Directory.Build.props`, bricht
+Davor läuft eine Prüfung: **Passt die Marke nicht zur Version in `Directory.Build.props`, bricht
 der Lauf ab**, bevor irgendetwas gebaut wird. Sonst entstünde eine Veröffentlichung, deren
 Dateien eine andere Nummer melden als ihr Name — und das fällt erst dem Benutzer auf.
 
@@ -38,7 +38,7 @@ Dateien eine andere Nummer melden als ihr Name — und das fällt erst dem Benut
   `macos-13`, den GitHub abgeschaltet hat. Intel-Macs werden jetzt vom arm64-Läufer mitgebaut.
 - **Die Archive enthielten ein Programm ohne Ausführungsrecht.** `upload-artifact` verwirft
   Dateirechte; gepackt wird deshalb im Bauauftrag, wo der Schalter noch steht.
-- Alle Actions auf aktuelle Fassungen gehoben (Node 20 wird aus den Läufern entfernt), und ein
+- Alle Actions auf aktuelle Versionen gehoben (Node 20 wird aus den Läufern entfernt), und ein
   Pull Request löst nicht mehr zwei vollständige Läufe aus.
 
 ### Behoben — `--version` gilt jetzt wirklich überall
@@ -52,7 +52,7 @@ für eine Überwachung, die auf den Rückgabewert sieht, der Unterschied zwische
 
 Ein Fremder, der dem README folgt, kam an fünf Stellen woanders heraus als angekündigt: Der
 macOS-Weg endete in `command not found` (der PATH-Hinweis stand nur beim Linux-Abschnitt und
-zeigte auf `~/.bashrc`, das zsh nicht liest), die kleine Fassung ohne mitgelieferte Laufzeit
+zeigte auf `~/.bashrc`, das zsh nicht liest), die kleine Version ohne mitgelieferte Laufzeit
 besteht aus 17 Dateien und war mit der Installationszeile von oben nicht lauffähig,
 `config.example.json` blieb bei allen drei Wegen liegen — obwohl die Fehlermeldung des Werkzeugs
 genau darauf verweist —, der ARM-Hinweis änderte nur eine von drei Stellen, und der allererste
@@ -88,7 +88,7 @@ Quelltext und im README.
 
 ### Gemessen — die erste Buchung in einer Produktivinstanz
 
-Gegen eine Instanz der Fassung 10.10.0 angelegt und zurückgelesen; die Einzelheiten stehen im
+Gegen eine Instanz der Version 10.10.0 angelegt und zurückgelesen; die Einzelheiten stehen im
 [README unter „Was gegen eine Produktivinstanz gemessen ist“](README.md#was-gegen-eine-produktivinstanz-gemessen-ist).
 Neu belegt: die Attribution wird serverseitig bestätigt, die Existenzprüfung findet den
 Datensatz über den Commit-Hash wieder, und `userId`/`userName` dürfen leer hinausgehen.
@@ -96,7 +96,7 @@ Datensatz über den Commit-Hash wieder, und `userId`/`userName` dürfen leer hin
 ---
 
 
-Erste Fassung. Sie bucht Git-Commits als Fernwartungen unmittelbar in eine TANSS-Instanz,
+Erste Version. Sie bucht Git-Commits als Fernwartungen unmittelbar in eine TANSS-Instanz,
 ohne einen Dienst dazwischen.
 
 ### Hinzugefügt

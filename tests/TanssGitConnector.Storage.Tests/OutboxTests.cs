@@ -175,7 +175,7 @@ public class OutboxTests
     }
 
     /// <summary>
-    /// Eine Datei aus einer neueren Programmfassung wird nicht angefasst.
+    /// Eine Datei aus einer neueren Programmversion wird nicht angefasst.
     /// </summary>
     /// <remarks>
     /// Ein älterer Stand kennt die neueren Felder nicht und schriebe sie beim nächsten Speichern
@@ -183,7 +183,7 @@ public class OutboxTests
     /// gebucht und nicht mehr auffindbar.
     /// </remarks>
     [Fact]
-    public void Eine_neuere_Fassung_wird_nicht_gelesen()
+    public void Eine_neuere_Version_wird_nicht_gelesen()
     {
         using Sandbox sandbox = new();
         File.WriteAllText(sandbox.File("queue.json"), """{"version":99,"entries":[]}""");

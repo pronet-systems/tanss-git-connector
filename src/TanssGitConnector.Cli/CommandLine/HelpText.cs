@@ -9,7 +9,7 @@ namespace TanssGitConnector.Cli.CommandLine;
 /// </remarks>
 public static class HelpText
 {
-    /// <summary>Die Fassung des Programms, so wie sie beim Übersetzen eingetragen wurde.</summary>
+    /// <summary>Die Version des Programms, so wie sie beim Übersetzen eingetragen wurde.</summary>
     public static string Version =>
         typeof(HelpText).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion.Split('+')[0]

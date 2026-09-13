@@ -66,7 +66,7 @@ internal static class BookCommand
         return ExitCode.Healthy;
     }
 
-    /// <summary>Führt <c>book</c> aus: eine benannte Fassung buchen, ausführlich melden.</summary>
+    /// <summary>Führt <c>book</c> aus: eine benannte Version buchen, ausführlich melden.</summary>
     public static Task<int> RunBookAsync(Composition composition, string directory,
                                          string revision, int explicitTicketId, bool dryRun,
                                          bool quiet, TextWriter output, TextWriter error,

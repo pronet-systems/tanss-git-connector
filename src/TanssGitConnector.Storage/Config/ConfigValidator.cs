@@ -61,9 +61,9 @@ public static class ConfigValidator
 
         if (config.Version <= 0 || config.Version > AppConfig.CurrentVersion)
         {
-            problems.Add($"version: {config.Version} ist unbekannt. Diese Programmfassung liest "
-                + $"bis Fassung {AppConfig.CurrentVersion}. Eine neuere Datei mit einer älteren "
-                + "Programmfassung zu lesen hiesse, Einstellungen zu übergehen, die jemand "
+            problems.Add($"version: {config.Version} ist unbekannt. Diese Programmversion liest "
+                + $"bis Version {AppConfig.CurrentVersion}. Eine neuere Datei mit einer älteren "
+                + "Programmversion zu lesen hiesse, Einstellungen zu übergehen, die jemand "
                 + "bewusst gesetzt hat.");
         }
 

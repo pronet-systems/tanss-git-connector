@@ -39,7 +39,7 @@ public sealed class GitRepository
     /// Liest einen Commit samt Zweig und Repositoryname.
     /// </summary>
     /// <param name="directory">Ein Verzeichnis innerhalb des Repositorys.</param>
-    /// <param name="revision">Die Fassung; ohne Angabe <c>HEAD</c>.</param>
+    /// <param name="revision">Die Version; ohne Angabe <c>HEAD</c>.</param>
     /// <param name="ct">Abbruchmarke.</param>
     /// <exception cref="NotARepositoryException">
     /// Das Verzeichnis gehört zu keinem Repository, oder das Repository hat noch keinen Commit.
@@ -93,7 +93,7 @@ public sealed class GitRepository
         {
             throw new GitException(
                 $"Die Ausgabe von git log hat {fields.Length} statt sieben Feldern. Das passt zu "
-                + "einer geänderten Git-Fassung oder zu einer Ausgabe, die nicht von diesem "
+                + "einer geänderten Git-Version oder zu einer Ausgabe, die nicht von diesem "
                 + "Werkzeug angefordert wurde. Gebucht wird nichts, solange die Herkunft der "
                 + "Zeiten und Texte nicht feststeht.");
         }

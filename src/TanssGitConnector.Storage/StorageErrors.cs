@@ -104,10 +104,10 @@ public sealed class TokenStoreException : StorageException
 
 /// <summary>
 /// Die Warteschlange auf der Platte ist unbrauchbar: beschädigt, gesperrt oder aus einer
-/// neueren Programmfassung.
+/// neueren Programmversion.
 /// </summary>
 /// <remarks>
-/// Eine Warteschlange mit höherer Fassungsnummer wird <b>nicht</b> gelesen. Ein älterer
+/// Eine Warteschlange mit höherer Versionsnummer wird <b>nicht</b> gelesen. Ein älterer
 /// Programmstand kennt die neueren Felder nicht und schriebe sie beim nächsten Speichern
 /// stillschweigend fort — wartende Commits wären danach unvollständig, und unvollständig
 /// heisst hier: nicht gebucht und nicht mehr auffindbar.

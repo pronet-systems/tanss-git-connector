@@ -66,7 +66,7 @@ public sealed record RemoteSupportWrite
     /// <remarks>
     /// <b>Geht als leere Zeichenkette hinaus, und das ist nachgemessen unbedenklich.</b> Anders
     /// als <see cref="DeviceId"/>, die TANSS in eine Firma zu übersetzen versucht, wird dieses
-    /// Feld nicht aufgelöst: Am 13.09.2026 gegen eine Instanz der Fassung 10.10.0 angelegt und
+    /// Feld nicht aufgelöst: Am 13.09.2026 gegen eine Instanz der Version 10.10.0 angelegt und
     /// zurückgelesen — <c>userId</c> und <c>userName</c> kamen leer zurück, ohne Nebenwirkung
     /// auf Zuordnung oder Firma.
     /// </remarks>

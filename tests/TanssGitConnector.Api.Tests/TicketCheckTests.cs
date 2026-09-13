@@ -74,7 +74,7 @@ public class TicketCheckTests
     /// </summary>
     /// <remarks>
     /// Die benutzten Routen sind überwiegend undokumentiert. Ein 404 kann ebenso gut eine
-    /// Route sein, die es in dieser TANSS-Fassung nicht mehr gibt — dafür den Ticketbezug
+    /// Route sein, die es in dieser TANSS-Version nicht mehr gibt — dafür den Ticketbezug
     /// wegzulassen wäre falsch.
     /// </remarks>
     [Fact]

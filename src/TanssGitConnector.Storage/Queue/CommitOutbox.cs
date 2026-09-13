@@ -310,8 +310,8 @@ public sealed class CommitOutbox
         return file.Version <= QueueFile.CurrentVersion
             ? file
             : throw new QueueException(
-                $"{_path} hat die Fassung {file.Version}; diese Programmfassung liest bis "
-                + $"{QueueFile.CurrentVersion}. Die Datei stammt aus einer neueren Fassung des "
+                $"{_path} hat die Version {file.Version}; diese Programmversion liest bis "
+                + $"{QueueFile.CurrentVersion}. Die Datei stammt aus einer neueren Version des "
                 + "Werkzeugs. Sie wird nicht angefasst: Ein älterer Stand würde beim nächsten "
                 + "Speichern Felder fortschreiben, die er nicht kennt.");
     }

@@ -13,7 +13,7 @@
     <Company>ProNet Systems GmbH</Company>
     <Product>TANSS Git-Connector</Product>
     <Copyright>Copyright (c) 2026 ProNet Systems GmbH</Copyright>
-    <!-- Eine Quelle der Wahrheit fuer die Fassung. Alles andere leitet sich hiervon ab. -->
+    <!-- Eine Quelle der Wahrheit fuer die Version. Alles andere leitet sich hiervon ab. -->
     <Version>0.1.0</Version>
     <FileVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), "^\d+(\.\d+){0,2}").Value).0</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>

@@ -12,7 +12,7 @@ namespace TanssGitConnector.Storage.Config;
 /// Eine vertippte Einstellung, die stillschweigend ignoriert wird, ist schlimmer als ein
 /// Fehler: Wer <c>only_with_tickets</c> statt <c>only_with_ticket</c> schreibt, hält seine
 /// Einschränkung für aktiv, während jeder Commit gebucht wird. Der Preis dafür ist, dass eine
-/// ältere Programmfassung eine neuere Datei nicht liest — dafür gibt es <see cref="Version"/>.</para>
+/// ältere Programmversion eine neuere Datei nicht liest — dafür gibt es <see cref="Version"/>.</para>
 ///
 /// <para>Geheimnisse stehen hier <b>nicht</b> drin. Das Token liegt geschützt im
 /// Zustandsverzeichnis, siehe <c>Secrets</c>.</para>
@@ -20,7 +20,7 @@ namespace TanssGitConnector.Storage.Config;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record AppConfig
 {
-    /// <summary>Höchster Stand, den diese Programmfassung lesen kann.</summary>
+    /// <summary>Höchster Stand, den diese Programmversion lesen kann.</summary>
     public const int CurrentVersion = 1;
 
     /// <summary>Stand des Dateiaufbaus. Erlaubt später eine Überführung ohne Rätselraten.</summary>

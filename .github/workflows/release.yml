@@ -2,7 +2,7 @@
 #  Veroeffentlichung. Ausgeloest von einer Marke v* - eine Marke ist die
 #  Freigabe, und sonst nichts.
 #
-#    git tag -a v0.2.0 -m "Fassung 0.2.0" && git push origin v0.2.0
+#    git tag -a v0.2.0 -m "Version 0.2.0" && git push origin v0.2.0
 #
 #  Daraus entsteht je Plattform eine einzelne Datei, die ihre Laufzeit
 #  mitbringt, ein SHA256 dazu - und eine Veroeffentlichung, deren Text aus
@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Fassung ohne v, etwa 0.2.0 - nur fuer einen Probelauf ohne Marke'
+        description: 'Version ohne v, etwa 0.2.0 - nur fuer einen Probelauf ohne Marke'
         required: false
 
 permissions:
@@ -33,21 +33,21 @@ env:
   DOTNET_CLI_UI_LANGUAGE: 'en'
 
 jobs:
-  # Erst pruefen, dann bauen: Eine Marke, die nicht zur Fassung in
+  # Erst pruefen, dann bauen: Eine Marke, die nicht zur Version in
   # Directory.Build.props passt, erzeugte sonst eine Veroeffentlichung, deren
   # Dateien eine andere Nummer melden als ihr Name. Das faellt erst dem
   # Benutzer auf.
   pruefen:
-    name: Marke und Fassung stimmen überein
+    name: Marke und Version stimmen überein
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.fassung.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Quelltext holen
         uses: actions/checkout@v7
 
       - name: Vergleichen
-        id: fassung
+        id: version
         run: |
           set -euo pipefail
           # Die eine Quelle der Wahrheit. Das Element steht bewusst in EINER
@@ -63,7 +63,7 @@ jobs:
           echo "Marke:                $marke"
 
           if [ "$datei" != "$marke" ]; then
-            echo "::error::Die Marke v$marke passt nicht zur Fassung $datei in Directory.Build.props. Entweder die Fassung anheben oder die Marke berichtigen."
+            echo "::error::Die Marke v$marke passt nicht zur Version $datei in Directory.Build.props. Entweder die Version anheben oder die Marke berichtigen."
             exit 1
           fi
 
@@ -174,7 +174,7 @@ jobs:
 
           if [ ! -s notiz.md ]; then
             echo "::warning::Im CHANGELOG steht kein Abschnitt [$version]. Die Veroeffentlichung bekommt nur den Installationstext."
-            printf 'Zu dieser Fassung steht im CHANGELOG nichts.\n' > notiz.md
+            printf 'Zu dieser Version steht im CHANGELOG nichts.\n' > notiz.md
           fi
 
           cat >> notiz.md <<'ENDE'
@@ -209,14 +209,14 @@ jobs:
       - name: Veröffentlichung
         uses: softprops/action-gh-release@v3
         with:
-          name: Fassung ${{ needs.pruefen.outputs.version }}
+          name: Version ${{ needs.pruefen.outputs.version }}
           body_path: notiz.md
           files: artifacts/*.tar.gz
           # Kein Entwurf: Eine Marke IST die Freigabe. Ein Entwurf, den jemand
           # von Hand nachtraeglich veroeffentlichen muss, bleibt genau so lange
           # liegen, bis ihn jemand vermisst.
           draft: false
-          # Eine Fassung mit Bindestrich (0.2.0-beta.1) gilt als Vorabfassung
+          # Eine Version mit Bindestrich (0.2.0-beta.1) gilt als Vorabversion
           # und wird auf der Startseite nicht als "neueste" gefuehrt.
           prerelease: ${{ contains(needs.pruefen.outputs.version, '-') }}
           fail_on_unmatched_files: true

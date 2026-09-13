@@ -92,7 +92,7 @@ public sealed class TicketRepository : ITicketVerification
         {
             // GEMESSEN: 404 mit error.text = OBJECT_NOT_FOUND heisst "gibt es nicht". Nur dieser
             // Beleg darf den Ticketbezug verhindern. Ein 404 ohne diese Marke kann ebenso gut
-            // eine Route sein, die es in dieser TANSS-Fassung nicht mehr gibt - die hier
+            // eine Route sein, die es in dieser TANSS-Version nicht mehr gibt - die hier
             // benutzten Routen sind ueberwiegend undokumentiert.
             return Mentions(ex.Detail, "NOT_FOUND")
                 ? new TicketCheck
@@ -108,7 +108,7 @@ public sealed class TicketRepository : ITicketVerification
                 : Undetermined(ticketId,
                     $"TANSS hat die Anfrage nach Ticket {ticketId} mit 404 beantwortet, aber "
                     + "ohne OBJECT_NOT_FOUND. Das kann heißen, dass es das Ticket nicht gibt — "
-                    + "oder dass es die Route in dieser TANSS-Fassung nicht mehr gibt.",
+                    + "oder dass es die Route in dieser TANSS-Version nicht mehr gibt.",
                     ex.Status, ex.Message);
         }
         catch (TanssException ex)

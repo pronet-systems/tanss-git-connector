@@ -64,7 +64,7 @@ public class CliArgsTests
     [InlineData("doctor")]
     [InlineData("queue")]
     [InlineData("hook")]
-    public void Die_Fassung_laesst_sich_hinter_jedem_Befehl_abfragen(string command)
+    public void Die_Version_laesst_sich_hinter_jedem_Befehl_abfragen(string command)
     {
         CliArgs parsed = CliArgs.Parse([command, "--version"]);
 
@@ -114,7 +114,7 @@ public class CliArgsTests
     }
 
     [Fact]
-    public void Book_nimmt_die_Fassung_als_freies_Wort()
+    public void Book_nimmt_die_Version_als_freies_Wort()
     {
         CliArgs parsed = CliArgs.Parse(["book", "HEAD~2", "--dry-run"]);
 

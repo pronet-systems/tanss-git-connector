@@ -209,7 +209,7 @@ public sealed class RemoteSupportRepository : IRemoteSupportRepository
     /// <summary>Liest die Liste aus dem <c>content</c> der Filterabfrage.</summary>
     /// <remarks>
     /// <para><b>Genau eine Form wird angenommen: ein schlichtes JSON-Feld.</b> Zweifach gemessen
-    /// gegen eine Instanz der Fassung 10.10.0 — einmal über einen Zeitraum von mehreren Jahren
+    /// gegen eine Instanz der Version 10.10.0 — einmal über einen Zeitraum von mehreren Jahren
     /// mit fünfstelliger Satzzahl, einmal mit Textfilter auf eine einzelne Vorgangskennung. Der
     /// Umschlag trägt die Liste unmittelbar unter <c>content</c>, ohne Zwischenobjekt.</para>
     /// <para>Jede andere Form ist deshalb ein Fehler und <b>keine leere Liste</b>. Der
@@ -224,10 +224,10 @@ public sealed class RemoteSupportRepository : IRemoteSupportRepository
             throw new TanssException(
                 "Die Filterabfrage PUT /api/v1/remoteSupports hat kein Feld von Fernwartungen "
                 + $"geliefert, sondern {Describe(payload.ValueKind)}. Das passt zu einer "
-                + "geänderten TANSS-Fassung — die Route ist undokumentiert und kann sich mit "
+                + "geänderten TANSS-Version — die Route ist undokumentiert und kann sich mit "
                 + "einem Update ändern. Bis das geklärt ist, darf nichts hochgeladen werden: "
                 + "diese Abfrage ist die einzige Existenzprüfung, und TANSS dedupliziert nicht. "
-                + "Die Antwortform ist gegen die TANSS-Fassung abzugleichen.");
+                + "Die Antwortform ist gegen die TANSS-Version abzugleichen.");
         }
 
         return payload.Deserialize<List<RemoteSupportRead>>(TanssJson.Options) ?? [];

@@ -60,7 +60,7 @@ public enum TicketCheckOutcome
     /// Das Ticket gibt es <b>nachweislich</b> nicht.
     /// </summary>
     /// <remarks>
-    /// Nachgemessen gegen eine Instanz der Fassung 10.10.0: <c>GET /api/v1/tickets/999999999</c>
+    /// Nachgemessen gegen eine Instanz der Version 10.10.0: <c>GET /api/v1/tickets/999999999</c>
     /// antwortet mit <b>404</b> und dem Rumpf <c>{"error":{"text":"OBJECT_NOT_FOUND", …}}</c>.
     /// Die Beschreibung der Schnittstelle kennt zu dieser Route nur 200 und 403; das 404 ist
     /// gemessen und real.

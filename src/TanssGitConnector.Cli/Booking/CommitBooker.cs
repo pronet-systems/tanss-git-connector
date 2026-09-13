@@ -84,7 +84,7 @@ internal sealed class CommitBooker
     /// Liest einen Commit und reiht ihn ein.
     /// </summary>
     /// <param name="directory">Ein Verzeichnis innerhalb des Repositorys.</param>
-    /// <param name="revision">Die Fassung; im Hook <c>HEAD</c>.</param>
+    /// <param name="revision">Die Version; im Hook <c>HEAD</c>.</param>
     /// <param name="explicitTicketId">Eine von Hand angegebene Ticketnummer, oder 0.</param>
     /// <param name="dryRun">Nur zeigen, nichts einreihen.</param>
     /// <param name="ct">Abbruchmarke.</param>
