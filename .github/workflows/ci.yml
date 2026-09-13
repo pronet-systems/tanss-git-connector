@@ -148,12 +148,19 @@ jobs:
         # das den Lauf frueher abgebrochen.
         run: |
           set -uo pipefail
+          # GitHub startet die Shell als "bash -e". "set -uo pipefail" schaltet
+          # das NICHT ab - deshalb hier ausdruecklich: Der naechste Aufruf
+          # liefert absichtlich 1, und ohne diese Zeile endet der Schritt
+          # sofort, noch vor der Ausgabe.
+          set +e
+
           export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
           cli="$PWD/artifacts/cli/tanss-git"
           cd "$RUNNER_TEMP/probe"
 
           "$cli" queue > queue.txt 2>&1
           rc=$?
+          set -e
           cat queue.txt
           # 0 = leer, 1 = es wartet etwas. Ab 2 ist es ein Fehler.
           test "$rc" -le 1
@@ -161,7 +168,6 @@ jobs:
           # Geprueft wird die Warteschlangendatei selbst und nicht die Anzeige:
           # Das Wort "wartend" steht auch in der Kopfzeile "wartend 0, …" und
           # traefe deshalb immer.
-          set -e
           queue="$TANSS_GIT_CONNECTOR_HOME/queue.json"
           jq -e '.entries | length == 1' "$queue" > /dev/null
           jq -e '.entries[0].state == "pending"' "$queue" > /dev/null
@@ -174,13 +180,16 @@ jobs:
       - name: Haken wieder entfernen
         run: |
           set -uo pipefail
+          set +e   # siehe oben: die Shell laeuft mit -e
+
           export TANSS_GIT_CONNECTOR_HOME="$RUNNER_TEMP/tanss-home"
           cd "$RUNNER_TEMP/probe"
 
           # Auch "disable" hat einen Befundwert: 1 heisst "dort liegt ein
-          # fremder Haken, ich fasse ihn nicht an". Hier muss es 0 sein - alles
+          # fremder Hook, ich fasse ihn nicht an". Hier muss es 0 sein - alles
           # andere waere ein Fehler im Werkzeug.
           "$GITHUB_WORKSPACE/artifacts/cli/tanss-git" disable
           rc=$?
+          set -e
           test "$rc" -eq 0
           test ! -e .git/hooks/post-commit

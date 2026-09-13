@@ -9,16 +9,6 @@ Gegenstelle ist eure TANSS-Instanz.
 
 Läuft auf **Linux, Windows und macOS**.
 
-> Ein unabhängiges Werkzeug der ProNet Systems GmbH. TANSS ist ein Produkt der HUCK IT GmbH,
-> Roßdorf; dieses Projekt steht in keiner Verbindung zu ihr und wird von ihr weder unterstützt
-> noch geprüft. Näheres unter [Lizenz](#lizenz).
-
-> **Stand: in Entwicklung.** Die Fachmodule sind fertig und mit 181 Tests abgedeckt, die
-> Kommandozeile steht, der Hook läuft. **Gegen eine Produktivinstanz der Fassung 10.10.0 ist
-> am 13.09.2026 eine erste Fernwartung angelegt und zurückgelesen worden** (siehe
-> [Stand der Umsetzung](#stand-der-umsetzung)). Was noch fehlt, steht ebenda; für den
-> Regelbetrieb fehlt vor allem ein Probelauf über mehrere Arbeitstage.
-
 ---
 
 ## Inhalt
